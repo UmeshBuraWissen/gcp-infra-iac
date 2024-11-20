@@ -1,9 +1,5 @@
 terraform {
-  backend "gcs" {
-    bucket = "buck-tf-dev-demo000"
-    prefix = "dev-usce1-demo-core000"
-  }
-
+  ${backend}
   required_providers {
     google = {
       version = "6.11.2"

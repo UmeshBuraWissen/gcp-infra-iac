@@ -1,11 +1,13 @@
 locals {
   sequence = coalesce(var.sequence, "000")
 
-  resource_key_google        = format("%s%s-%s%s", var.environment, local.gcp_regions[var.region].region_code, var.workload, local.sequence)
-  resource_key_google_global = format("%s-%s%s", var.environment, var.workload, local.sequence) # global name without region code
+  resource_key_google        = format("%s-%s-%s-%s%s", var.environment, local.gcp_regions[var.region].region_code, var.workload, var.identifier, local.sequence)
+  resource_key_google_global = format("%s-%s-%s%s", var.environment, var.workload, var.identifier, local.sequence) # global name without region code
 
   resource = {
-    google_project = join("", ["proj", "-", local.resource_key_google_global])
+    google_project = join("", ["proj", "-", format("%s-%s%s", var.environment, var.workload, local.sequence)])
+
+    remote_state_bucket = join("", ["buck-tf", "-", format("%s-%s%s", var.environment, var.workload, local.sequence)])
 
     # google_app_engine               = join("", ["gapp", "-", local.resource_key_google])
     # google_artifact_registry        = join("", ["areg", "-", local.resource_key_google])
@@ -36,4 +38,8 @@ locals {
 
 output "resource_name" {
   value = local.resource
+}
+
+output "resource_key" {
+  value = local.resource_key_google
 }

@@ -3,6 +3,8 @@ data "google_organization" "org" {
   domain       = var.organization.domain
 }
 
+data "google_client_config" "current" {}
+
 module "naming" {
   source = "../../modules/naming"
 
@@ -10,6 +12,7 @@ module "naming" {
   workload    = var.metadata.workload
   region      = var.metadata.region
   sequence    = var.metadata.sequence
+  identifier  = var.metadata.identifier
 }
 
 locals {
@@ -18,5 +21,16 @@ locals {
     workload    = var.metadata.workload
     region      = var.metadata.region
     sequence    = var.metadata.sequence
+    identifier  = var.metadata.identifier
   }
+}
+
+module "bootstrap" {
+  source = "../../modules/bootstrap"
+
+  environment = var.metadata.environment
+  workload    = var.metadata.workload
+  region      = var.metadata.region
+  sequence    = var.metadata.sequence
+  identifier  = var.metadata.identifier
 }
