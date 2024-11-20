@@ -9,8 +9,12 @@ locals {
 
     remote_state_bucket = join("", ["buck-tf", "-", format("%s-%s%s", var.environment, var.workload, local.sequence)])
 
+    google_service_account = join("", ["sera", "-", local.resource_key_google_global])
+
+    google_artifact_registry_repository = join("", ["areg", "-", local.resource_key_google])
+    google_compute_network              = join("", ["vpc", "-", local.resource_key_google])
+
     # google_app_engine               = join("", ["gapp", "-", local.resource_key_google])
-    # google_artifact_registry        = join("", ["areg", "-", local.resource_key_google])
     # google_bigquery_instance        = join("", ["bq", "-", local.resource_key_google])
     # google_bigtable_instance        = join("", ["bigtb", "-", local.resource_key_google])
     # google_cloud_function           = join("", ["cfun", "-", local.resource_key_google])

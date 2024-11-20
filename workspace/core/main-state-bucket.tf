@@ -6,7 +6,11 @@ resource "google_storage_bucket" "remote_state_storage" {
 
   storage_class               = "MULTI_REGIONAL"
   uniform_bucket_level_access = true
-  force_destroy               = true
+
+  force_destroy = true
+  versioning {
+    enabled = true
+  }
 
   labels = local.labels
 }
