@@ -35,6 +35,14 @@ variable "sql_config" {
 }
 
 
+variable "image_name" {
+
+}
+
+variable "secretmanger_config" {
+
+}
+
 # create cloudrun
 # create cloudsql
 # 
