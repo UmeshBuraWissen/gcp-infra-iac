@@ -28,8 +28,8 @@ resource "google_cloud_run_service" "default" {
         "run.googleapis.com/cloudsql-instances" = var.metadata.annotations.connection_name
         "run.googleapis.com/client-name"        = var.metadata.annotations.client-name
         # "run.googleapis.com/vpc-access-connector" = google_vpc_access_connector.connector.name
-        timeout_seconds      = var.timeout_seconds
-        
+        timeout_seconds = var.timeout_seconds
+
       }
     }
 
