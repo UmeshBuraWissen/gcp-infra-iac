@@ -45,7 +45,7 @@ resource "google_sql_database_instance" "instance" {
     backup_configuration {
       enabled            = var.enabled
       binary_log_enabled = var.binary_log_enabled
-
+      location           = "us"
     }
 
     ip_configuration {
@@ -72,4 +72,8 @@ resource "google_compute_network_peering_routes_config" "peering_routes" {
   network              = google_compute_network.peering_network.name
   import_custom_routes = var.import_custom_routes
   export_custom_routes = var.export_custom_routes
+}
+
+output "private_ip_address" {
+  value = google_sql_database_instance.instance.first_ip_address
 }

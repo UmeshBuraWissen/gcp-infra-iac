@@ -22,9 +22,10 @@ variable "template" {
 variable "metadata" {
   type = object({
     annotations = object({
-      maxScale        = string
-      connection_name = string
-      client-name     = string
+      maxScale            = string
+      connection_name     = string
+      client-name         = string
+      vpc_access_conector = string
     })
   })
 }

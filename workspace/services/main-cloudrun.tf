@@ -19,7 +19,7 @@ module "cloudRun" {
   name       = each.value["name"]
   location   = var.metadata.region #each.value["location"]
   project_id = local.project.project_id
-  envs       = each.value["envs"]
+  envs       = merge(each.value["envs"], { "dbconnectionname" = module.cloudSql[each.value["sql_name"]].private_ip_address }) ## add ip address of cloudsql private ip
   template = {
     spec = {
       containers = {
@@ -29,9 +29,10 @@ module "cloudRun" {
   }
   metadata = {
     annotations = {
-      maxScale        = each.value["maxScale"]
-      connection_name = module.cloudSql[each.value["sql_name"]].connection_name
-      client-name     = each.value["client-name"]
+      maxScale            = each.value["maxScale"]
+      connection_name     = module.cloudSql[each.value["sql_name"]].connection_name
+      client-name         = each.value["client-name"]
+      vpc_access_conector = google_vpc_access_connector.connector.id # "projects/proj-dev-demo000-gbjy/locations/us-central1/connectors/test-serverless-vpc"
     }
   }
   autogenerate_revision_name = each.value["autogenerate_revision_name"]

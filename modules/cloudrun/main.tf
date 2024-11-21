@@ -24,14 +24,17 @@ resource "google_cloud_run_service" "default" {
     metadata {
       annotations = {
 
-        "autoscaling.knative.dev/maxScale"      = var.metadata.annotations.maxScale
-        "run.googleapis.com/cloudsql-instances" = var.metadata.annotations.connection_name
-        "run.googleapis.com/client-name"        = var.metadata.annotations.client-name
+        "autoscaling.knative.dev/maxScale"        = var.metadata.annotations.maxScale
+        "run.googleapis.com/cloudsql-instances"   = var.metadata.annotations.connection_name
+        "run.googleapis.com/client-name"          = var.metadata.annotations.client-name
+        "run.googleapis.com/startup-cpu-boost"    = false
+        "run.googleapis.com/vpc-access-connector" = var.metadata.annotations.vpc_access_conector
+        "run.googleapis.com/vpc-access-egress"    = "all-traffic"
         # "run.googleapis.com/vpc-access-connector" = google_vpc_access_connector.connector.name
         timeout_seconds = var.timeout_seconds
-
       }
     }
+
 
   }
 
@@ -41,6 +44,10 @@ resource "google_cloud_run_service" "default" {
   #     "revision-trigger" = timestamp() # This label forces a new revision to ensure the latest image is used
   #   }
   # }
+
+  lifecycle {
+    ignore_changes = [template[0].spec[0].containers[0].image]
+  }
 }
 data "google_iam_policy" "noauth" {
 
