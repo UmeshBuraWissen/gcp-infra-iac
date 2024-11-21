@@ -33,3 +33,8 @@ variable "cloudrunsql_config" {
 variable "sql_config" {
 
 }
+
+
+# create cloudrun
+# create cloudsql
+# 

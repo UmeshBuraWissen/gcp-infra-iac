@@ -4,7 +4,7 @@ module "cloudRun" {
   name       = each.value["name"]
   location   = each.value["location"]
   project_id = local.project.project_id
-  envs       = each.value["envs"]
+  # envs       = each.value["envs"]
   template = {
     spec = {
       containers = {

@@ -9,7 +9,7 @@ metadata = {
 
 cloudrunsql_config = [
   {
-    name                       = "wissen-nodejs-app-gcp-cloudrun-mysql"
+    name                       = "wissen-nodejs-app-gcp-cloudrun-mysql-1"
     location                   = "us-central1"
     project_id                 = "gcp-cloudrun-nodejs-mysql-app"
     image                      = "nginx:latest"
@@ -19,11 +19,11 @@ cloudrunsql_config = [
     autogenerate_revision_name = true
     timeout_seconds            = 6000
     service_account_name       = "nodejsdemo@gcp-cloudrun-nodejs-mysql-app.iam.gserviceaccount.com"
-    envs = {
-      "port"             = "3000"
-      "projectid"        = "277275469326"
-      "dbconnectionname" = "gcp-cloudrun-nodejs-mysql-app:us-central1:wissen-nodejs-app-gcp-mysql"
-    }
+    # envs = {
+    #   "port"             = "3000"
+    #   "projectid"        = "277275469326"
+    #   "dbconnectionname" = "gcp-cloudrun-nodejs-mysql-app:us-central1:wissen-nodejs-app-gcp-mysql"
+    # }
   }
 ]
 
