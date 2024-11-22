@@ -47,6 +47,24 @@ module "cloudsql" {
   depends_on = [google_service_networking_connection.cloudql]
 }
 
+module "sql_username_secret" {
+  source = "../../modules/secretmanager"
+
+  project_id  = local.project.project_id
+  secret_id   = "DB_USERNAME"
+  location    = var.metadata.region
+  secret_data = "admin"
+}
+
+module "sql_password_secret" {
+  source = "../../modules/secretmanager"
+
+  project_id  = local.project.project_id
+  secret_id   = "DB_PASSWORD"
+  location    = var.metadata.region
+  secret_data = "securepassword"
+}
+
 output "cloudsql" {
   value     = module.cloudsql
   sensitive = true

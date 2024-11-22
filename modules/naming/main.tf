@@ -17,6 +17,7 @@ locals {
     google_compute_global_address       = join("", ["glad", "-", local.resource_key_google])
     google_sql_database_instance        = join("", ["csql", "-", local.resource_key_google])
 
+    google_vpc_access_connector = join("", ["svac", "-", format("%s-%s-%s%s", var.environment, local.gcp_regions[var.region].region_code, var.workload, local.sequence)])
     # google_app_engine               = join("", ["gapp", "-", local.resource_key_google])
     # google_bigquery_instance        = join("", ["bq", "-", local.resource_key_google])
     # google_bigtable_instance        = join("", ["bigtb", "-", local.resource_key_google])

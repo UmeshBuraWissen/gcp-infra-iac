@@ -23,6 +23,18 @@ cloudsql = [
   }
 ]
 
+cloud_run_services = [
+  {
+    name                 = "nodejs_demo_app"
+    image                = "gcr.io/google-samples/hello-app:2.0"
+    container_port       = 3000
+    max_scale            = 10
+    cloudsql             = "node_js_db"
+    env_vars             = {}
+    template_annotations = {}
+  },
+]
+
 # cloudrunsql_config = [
 #   {
 #     name     = "wissen-nodejs-app-gcp-cloudrun-mysql-1"

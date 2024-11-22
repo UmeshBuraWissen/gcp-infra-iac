@@ -6,29 +6,32 @@ resource "google_compute_network" "vpc" {
 }
 
 resource "google_compute_firewall" "deny_all_ingress" {
+  name = format("%s-%s", google_compute_network.vpc.name, "deny-all-ingress")
+
   project = local.project.project_id
-  name    = "deny-all-ingress"
   network = google_compute_network.vpc.name
 
   deny {
     protocol = "all"
   }
 
+  source_ranges = ["0.0.0.0/0"]
   direction     = "INGRESS"
   priority      = 1000
-  source_ranges = ["0.0.0.0/0"]
 }
 
 resource "google_compute_firewall" "allow_3306_ingress" {
+  name = format("%s-%s", google_compute_network.vpc.name, "allow-mysql-port-3306")
+
   project = local.project.project_id
-
-  name    = "allow-mysql-port-3306"
   network = google_compute_network.vpc.name
-
-  source_ranges = ["10.8.0.0/28"] ## VPC connector subnet
 
   allow {
     protocol = "tcp"
     ports    = ["3306"]
   }
+
+  source_ranges = [google_vpc_access_connector.connector.ip_cidr_range] ## VPC connector subnet
+  direction     = "INGRESS"
+  priority      = 100
 }

@@ -44,6 +44,19 @@ variable "cloudsql" {
   )
 }
 
+variable "cloud_run_services" {
+  description = "A map of Cloud Run service configurations"
+  type = list(object({
+    name                   = string
+    image                      = string
+    env_vars                   = map(string)
+    container_port             = number
+    max_scale                  = number
+    cloudsql                   = string
+    template_annotations       = map(string)
+    autogenerate_revision_name = optional(bool, true)
+  }))
+}
 # variable "cloudrunsql_config" {
 
 # }

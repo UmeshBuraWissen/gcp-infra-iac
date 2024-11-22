@@ -1,43 +1,34 @@
-# data "google_artifact_registry_docker_image" "my_image" {
-#   location      = data.google_artifact_registry_repository.my-repo.location
-#   repository_id = "areg-dev-usce1-demo-core000" #module.bootstrap.resource_name.google_artifact_registry_repository
-#   image_name    = var.image_name
-#   project       = local.project.project_id
+module "cloud_run_services" {
+  source = "../../modules/cloudrun"
 
-# }
+  for_each = { for i, v in var.cloud_run_services : v.name => merge(v, { "index" = i }) }
 
-# data "google_artifact_registry_repository" "my-repo" {
-#   location      = "us"                          #var.location
-#   repository_id = "areg-dev-usce1-demo-core000" #module.bootstrap.resource_name.google_artifact_registry_repository
-#   project       = local.project.project_id      #var.project
-# }
+  name = format("%s%s", module.bootstrap.resource_name.google_cloud_run, each.value.index + 1)
 
+  location   = var.metadata.region
+  project_id = local.project.project_id
 
-# module "cloudRun" {
-#   source     = "../../modules/cloudrun"
-#   for_each   = { for i in var.cloudrunsql_config : i.name => i }
-#   name       = each.value["name"]
-#   location   = var.metadata.region #each.value["location"]
-#   project_id = local.project.project_id
-#   envs       = merge(each.value["envs"], { "dbconnectionname" = module.cloudSql[each.value["sql_name"]].private_ip_address }) ## add ip address of cloudsql private ip
-#   template = {
-#     spec = {
-#       containers = {
-#         image = data.google_artifact_registry_docker_image.my_image.self_link
-#       }
-#     }
-#   }
-#   metadata = {
-#     annotations = {
-#       maxScale            = each.value["maxScale"]
-#       connection_name     = module.cloudSql[each.value["sql_name"]].connection_name
-#       client-name         = each.value["client-name"]
-#       vpc_access_conector = google_vpc_access_connector.connector.id # "projects/proj-dev-demo000-gbjy/locations/us-central1/connectors/test-serverless-vpc"
-#     }
-#   }
-#   autogenerate_revision_name = each.value["autogenerate_revision_name"]
-#   timeout_seconds            = each.value["timeout_seconds"]
-#   service_account_name       = "sera-dev-demo-core000@proj-dev-demo000-gbjy.iam.gserviceaccount.com" #each.value["service_account_name"]
-#   depends_on                 = [module.cloudSql]
+  service_account_name = google_service_account.application_sa.email
 
-# }
+  vpc_access_connector = google_vpc_access_connector.connector.name
+
+  image          = each.value.image
+  container_port = each.value.container_port
+
+  env_vars = merge(each.value.env_vars, {
+    "port"             = each.value.container_port
+    "projectid"        = local.project.number
+    "dbconnectionname" = module.cloudsql[each.value.cloudsql].private_ip_address
+    }
+  )
+
+  template_annotations = merge(each.value.template_annotations, {
+    "autoscaling.knative.dev/maxScale"      = each.value.max_scale
+    "run.googleapis.com/cloudsql-instances" = module.cloudsql[each.value.cloudsql].connection_name ## db connection name
+    "run.googleapis.com/startup-cpu-boost"  = false
+    "timeout_seconds"                       = "6000"
+  })
+  autogenerate_revision_name = each.value.autogenerate_revision_name
+
+  depends_on = [module.cloudsql]
+}
