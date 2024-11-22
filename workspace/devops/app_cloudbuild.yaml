@@ -1,0 +1,41 @@
+steps:
+
+  # Build the Docker image with both build number and latest tags
+
+  - name: 'gcr.io/cloud-builders/docker'
+
+    args: [
+
+      'build',
+
+      '-t', 'us-docker.pkg.dev/proj-dev-demo000-gbjy/areg-dev-usce1-demo-core000/nodejsapp:$BUILD_ID',  # Tag with the build number
+
+      '-t', 'us-docker.pkg.dev/proj-dev-demo000-gbjy/areg-dev-usce1-demo-core000/nodejsapp:latest',     # Additional "latest" tag
+
+      './gcp_nodejs_app/'
+
+    ]
+ 
+  # Push both tags to Artifact Registry
+
+  - name: 'gcr.io/cloud-builders/docker'
+
+    args: ['push', 'us-docker.pkg.dev/proj-dev-demo000-gbjy/areg-dev-usce1-demo-core000/nodejsapp:$BUILD_ID']
+ 
+  - name: 'gcr.io/cloud-builders/docker'
+
+    args: ['push', 'us-docker.pkg.dev/proj-dev-demo000-gbjy/areg-dev-usce1-demo-core000/nodejsapp:latest']
+ 
+images:
+
+  - 'us-docker.pkg.dev/proj-dev-demo000-gbjy/areg-dev-usce1-demo-core000/nodejsapp:$BUILD_ID'
+
+  - 'us-docker.pkg.dev/proj-dev-demo000-gbjy/areg-dev-usce1-demo-core000/nodejsapp:latest'
+ 
+logsBucket: 'terraformbackendmysqlapplication'
+
+options:
+
+  logging: GCS_ONLY
+
+ 
