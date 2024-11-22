@@ -47,7 +47,7 @@ variable "cloudsql" {
 variable "cloud_run_services" {
   description = "A map of Cloud Run service configurations"
   type = list(object({
-    name                   = string
+    name                       = string
     image                      = string
     env_vars                   = map(string)
     container_port             = number
