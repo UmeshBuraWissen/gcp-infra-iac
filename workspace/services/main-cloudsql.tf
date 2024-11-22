@@ -1,31 +1,53 @@
-module "cloudSql" {
-  source                  = "../../modules/cloudsql"
-  for_each                = { for i in var.sql_config : i.sql_name => i }
-  location                = var.metadata.region #each.value["location"]
-  project_id              = local.project.project_id
-  sql_name                = each.value["sql_name"]
-  database_version        = each.value["database_version"]
-  tier                    = each.value["tier"]
-  enabled                 = each.value["enabled"]
-  binary_log_enabled      = each.value["binary_log_enabled"]
-  ipv4_enabled            = each.value["ipv4_enabled"]
-  ssl_mode                = each.value["ssl_mode"]
-  require_ssl             = each.value["require_ssl"]
-  deletion_protection     = each.value["deletion_protection"]
-  sql_user_name           = each.value["sql_user_name"]
-  sql_user_pass           = each.value["sql_user_pass"]
-  private-network-name    = each.value["private-network-name"]
-  auto_create_subnetworks = each.value["auto_create_subnetworks"]
-  private-ip-address-name = each.value["private-ip-address-name"]
-  purpose                 = each.value["purpose"]
-  address_type            = each.value["address_type"]
-  prefix_length           = each.value["prefix_length"]
-  service                 = each.value["service"]
-  firewall_name           = each.value["firewall_name"]
-  protocol                = each.value["protocol"]
-  direction               = each.value["direction"]
-  priority                = each.value["priority"]
-  source_ranges           = each.value["source_ranges"]
-  import_custom_routes    = each.value["import_custom_routes"]
-  export_custom_routes    = each.value["export_custom_routes"]
+resource "google_compute_global_address" "cloudsql" {
+  name    = module.bootstrap.resource_name.google_compute_global_address
+  project = local.project.project_id
+  network = google_compute_network.vpc.id
+
+  purpose       = "VPC_PEERING"
+  address_type  = "INTERNAL"
+  prefix_length = 16
+}
+
+resource "google_service_networking_connection" "cloudql" {
+  network                 = google_compute_network.vpc.id
+  service                 = "servicenetworking.googleapis.com"
+  reserved_peering_ranges = [google_compute_global_address.cloudsql.name]
+}
+
+resource "google_compute_network_peering_routes_config" "peering_routes" {
+  project = local.project.project_id
+  peering = google_service_networking_connection.cloudql.peering
+  network = google_compute_network.vpc.name
+
+  import_custom_routes = true
+  export_custom_routes = true
+}
+
+module "cloudsql" {
+  source = "../../modules/cloudsql"
+
+  for_each = { for i, v in var.cloudsql : v.purpose => merge(v, { "index" = i }) }
+
+  name = format("%s%s", module.bootstrap.resource_name.google_sql_database_instance, each.value.index + 1)
+
+  project_id = local.project.project_id
+  region     = var.metadata.region
+
+  vpc_id = google_compute_network.vpc.id
+
+  ipv4_enabled         = each.value.ipv4_enabled
+  database_version     = each.value.database_version
+  tier                 = each.value.tier
+  backup_configuration = each.value.backup_configuration
+  ssl_mode             = each.value.ssl_mode
+
+  sql_user_name = each.value.sql_user_name
+  sql_user_pass = each.value.sql_user_pass
+
+  depends_on = [google_service_networking_connection.cloudql]
+}
+
+output "cloudsql" {
+  value     = module.cloudsql
+  sensitive = true
 }
