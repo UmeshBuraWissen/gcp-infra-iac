@@ -14,6 +14,8 @@ locals {
     google_artifact_registry_repository = join("", ["areg", "-", local.resource_key_google])
     google_compute_network              = join("", ["vpc", "-", local.resource_key_google])
     google_cloud_run                    = join("", ["crun", "-", local.resource_key_google])
+    google_compute_global_address       = join("", ["glad", "-", local.resource_key_google])
+    google_sql_database_instance        = join("", ["csql", "-", local.resource_key_google])
 
     # google_app_engine               = join("", ["gapp", "-", local.resource_key_google])
     # google_bigquery_instance        = join("", ["bq", "-", local.resource_key_google])
