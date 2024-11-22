@@ -2,10 +2,10 @@ resource "google_compute_firewall" "default" {
   name    = "allow-mysql-port-3306"
   network = "wissen-nodejs-app-gcp-vpc"
 
-source_ranges = ["10.8.0.0/28"]
+  source_ranges = ["10.8.0.0/28"]
   allow {
     protocol = "tcp"
-    ports = ["3306"]
+    ports    = ["3306"]
   }
 }
 
