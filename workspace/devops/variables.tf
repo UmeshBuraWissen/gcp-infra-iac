@@ -1,3 +1,3 @@
 variable "build_config" {
-  
+
 }

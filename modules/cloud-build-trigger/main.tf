@@ -1,11 +1,11 @@
 resource "google_cloudbuild_trigger" "trigger" {
-  name = var.name
+  name     = var.name
   location = "us-central1"
   project  = var.project
   disabled = var.disabled
   source_to_build {
     repo_type = "GITHUB"
-    ref = "refs/heads/main"
+    ref       = "refs/heads/main"
     uri       = "https://github.com/UmeshBuraWissen/gcp-infra-iac.git"
   }
   github {
@@ -29,5 +29,5 @@ resource "google_cloudbuild_trigger" "trigger" {
 
 
   service_account = "projects/${var.project}/serviceAccounts/${var.service_account}"
-  filename = var.path
+  filename        = var.path
 }
