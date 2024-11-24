@@ -1,3 +1,11 @@
+metadata = {
+  workload    = "demo",
+  environment = "dev",
+  sequence    = "000",
+  region      = "us-central1"
+  identifier  = "devops"
+}
+
 build_config = [
   {
     name            = "infra-cloud-build"
