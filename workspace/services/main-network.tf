@@ -1,5 +1,5 @@
 resource "google_compute_network" "vpc" {
-  name = module.bootstrap.resource_name.google_compute_network
+  name = format("%s%s", module.bootstrap.resource_name.google_compute_network, "1")
 
   project                 = local.project.project_id
   auto_create_subnetworks = false

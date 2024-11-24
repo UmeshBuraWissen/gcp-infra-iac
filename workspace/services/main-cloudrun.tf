@@ -18,13 +18,13 @@ module "cloud_run_services" {
   env_vars = merge(each.value.env_vars, {
     "port"             = each.value.container_port
     "projectid"        = local.project.number
-    "dbconnectionname" = module.cloudsql[each.value.cloudsql].private_ip_address
+    "dbconnectionname" = try(module.cloudsql[each.value.cloudsql].private_ip_address, "")
     }
   )
 
   template_annotations = merge(each.value.template_annotations, {
     "autoscaling.knative.dev/maxScale"      = each.value.max_scale
-    "run.googleapis.com/cloudsql-instances" = module.cloudsql[each.value.cloudsql].connection_name ## db connection name
+    "run.googleapis.com/cloudsql-instances" = try(module.cloudsql[each.value.cloudsql].connection_name, "") ## db connection name
     "run.googleapis.com/startup-cpu-boost"  = false
     "timeout_seconds"                       = "6000"
   })
