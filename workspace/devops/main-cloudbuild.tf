@@ -14,35 +14,33 @@
 # }
 
 resource "google_cloudbuild_trigger" "trigger" {
-  name     = "infra-cloud-build"
+  name     = "infra"
   location = "us-central1"
   project  = local.project.project_id
   disabled = false
   source_to_build {
-    repo_type = "GITHUB"
-    ref       = "refs/heads/main"
-    uri       = "https://github.com/UmeshBuraWissen/gcp-infra-iac.git"
+    repo_type  = "GITHUB"
+    ref        = "refs/heads/main"
+    repository = "projects/proj-dev-demo000-gbjy/locations/us-central1/connections/test/repositories/gcp-infra-iac"
+
   }
-  github {
-    owner = "UmeshBuraWissen"
-    name  = "gcp-infra-iac"
-    push {
-      branch       = "^main$"
-      invert_regex = false
-    }
-  }
+
   substitutions = {
     _TFACTION = "apply"
   }
 
-  # git_file_source {
-  #   path      = "devops/infra_cloudbuild.yaml"
-  #   uri       = "https://github.com/UmeshBuraWissen/gcp-infra-iac.git"
-  #   revision  = "refs/heads/main"
-  #   repo_type = "GITHUB"
-  # }
+  git_file_source {
+    path       = "workspace/devops/infra_cloudbuild.yaml"
+    repository = "projects/proj-dev-demo000-gbjy/locations/us-central1/connections/test/repositories/gcp-infra-iac"
+    revision   = "refs/heads/main"
+    repo_type  = "GITHUB"
+  }
 
 
   service_account = "projects/${local.project.project_id}/serviceAccounts/sera-dev-demo-core000@proj-dev-demo000-gbjy.iam.gserviceaccount.com"
-  filename        = "infra_cloudbuild.yaml"
 }
+
+# import {
+#   id = "projects/proj-dev-demo000-gbjy/locations/us-central1/triggers/1affa7d9-c88d-4011-b1f5-d311f7a8747d"
+#   to = google_cloudbuild_trigger.trigger
+# }

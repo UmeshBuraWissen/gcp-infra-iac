@@ -10,7 +10,12 @@ output "project_sa" {
 
 
 locals {
-  project_sa_roles = ["roles/editor"]
+  project_sa_roles = [
+    "roles/editor",
+    "roles/resourcemanager.projectIamAdmin",
+    "roles/iam.securityAdmin",
+    "roles/run.admin",
+  ]
 }
 
 resource "google_project_iam_member" "project_sa_roles" {

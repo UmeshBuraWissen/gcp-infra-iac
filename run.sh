@@ -6,20 +6,21 @@ set -euo pipefail
 # Function to display usage information
 usage() {
   echo "Usage: $0 -w=<workspace> <terraform_command>"
-  echo "Example: $0 reset"
+  echo "Example: $0 -w=core reset"
   echo "Example: $0 -w=core init"
   exit 1
 }
 
+# Function to clean up Terraform-related files in a given directory
 reset() {
-  ROOT_DIR=${1:-$(pwd)} # Use the provided root directory or the current directory by default
+  TARGET_DIR="$1" # Workspace directory, properly quoted
 
-  echo "Cleaning up Terraform-related files and directories in: $ROOT_DIR"
+  echo "Cleaning up Terraform-related files and directories in: $TARGET_DIR"
 
   # Remove directories and files matching the specified patterns
-  find "$ROOT_DIR" -type d -name ".terraform" -prune -exec rm -rf {} + # Remove .terraform directories
-  find "$ROOT_DIR" -type d -name ".local" -prune -exec rm -rf {} +     # Remove .local directories
-  find "$ROOT_DIR" -type f \( \
+  find "$TARGET_DIR" -type d -name ".terraform" -prune -exec rm -rf "{}" + # Remove .terraform directories
+  find "$TARGET_DIR" -type d -name ".local" -prune -exec rm -rf "{}" +     # Remove .local directories
+  find "$TARGET_DIR" -type f \( \
     -name "*.tfstate" -o \
     -name "*.tfstate.*" -o \
     -name "crash.log" -o \
@@ -33,9 +34,9 @@ reset() {
     -name ".terraform.lock.hcl" -o \
     -name ".terraformrc" -o \
     -name "terraform.rc" \
-    \) -exec rm -f {} +
+    \) -exec rm -f "{}" +
 
-  terraform fmt -recursive
+  terraform fmt -recursive "$TARGET_DIR"
   echo "Cleanup completed."
 }
 
@@ -51,17 +52,30 @@ COMMAND=""
 # Loop through the arguments
 for ARG in "$@"; do
   case $ARG in
-  -w=*)
+  -w=*|--workspace=*)
     WORKSPACE="${ARG#*=}" # Extract the workspace value
     ;;
-  *)
+  * )
     COMMAND="$COMMAND $ARG" # Collect the terraform command
     ;;
   esac
 done
 
+# Handle "reset" command
 if [[ "$COMMAND" == " reset" ]]; then
-  reset
+  if [[ -n "$WORKSPACE" ]]; then
+    ROOT_DIR="$(pwd)"
+    WORKSPACE_PATH="$ROOT_DIR/workspace/$WORKSPACE"
+    if [[ -d "$WORKSPACE_PATH" ]]; then
+      reset "$WORKSPACE_PATH"
+    else
+      echo "Error: Workspace directory does not exist: $WORKSPACE_PATH"
+      exit 1
+    fi
+  else
+    echo "Error: The reset command requires a workspace (-w) to be specified."
+    usage
+  fi
   exit
 fi
 
@@ -71,22 +85,22 @@ if [[ -z "$WORKSPACE" ]]; then
   usage
 fi
 
-ROOT_DIR=$(pwd)
+ROOT_DIR="$(pwd)"
 WORKSPACE_PATH="$ROOT_DIR/workspace/$WORKSPACE"
 
 # Check if the command is "init"
 if [[ "$COMMAND" == " init" ]]; then
-  reset
+  reset "$WORKSPACE_PATH" # Cleanup specific workspace before init
   TEMP_DIR="$ROOT_DIR/workspace/.local"
   rm -rf "$TEMP_DIR"
   mkdir -p "$TEMP_DIR"
 
-  cp $WORKSPACE_PATH/main.tf $WORKSPACE_PATH/variables.tf $WORKSPACE_PATH/variables.auto.tfvars "$TEMP_DIR/"
+  cp "$WORKSPACE_PATH/main.tf" "$WORKSPACE_PATH/variables.tf" "$WORKSPACE_PATH/variables.auto.tfvars" "$TEMP_DIR/"
 
   terraform -chdir="$TEMP_DIR" init -backend=false
   terraform -chdir="$TEMP_DIR" apply --auto-approve
 
-  cp -f $TEMP_DIR/auth.tf "$WORKSPACE_PATH/"
+  cp -f "$TEMP_DIR/auth.tf" "$WORKSPACE_PATH/"
   rm -rf "$TEMP_DIR"
 fi
 
