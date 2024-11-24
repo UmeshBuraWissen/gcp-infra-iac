@@ -47,6 +47,6 @@ steps:
       terraform $_TFACTION -auto-approve
 
 #timeout = 6100s
-# logsBucket: 'terraformbackendmysqlapplication'
+logsBucket: ' cloud-build-logs-gbjy'
 options:
   logging: GCS_ONLY
