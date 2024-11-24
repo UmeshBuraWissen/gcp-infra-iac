@@ -32,7 +32,7 @@ resource "google_cloudbuildv2_connection" "github" {
   github_config {
     app_installation_id = 57141306
     authorizer_credential {
-      oauth_token_secret_version = "projects/proj-dev-demo000-gbjy/secrets/test-github-oauthtoken-1d8ff8/versions/latest"
+      oauth_token_secret_version = "projects/proj-dev-demo000-gbjy/secrets/test-github-oauthtoken-1d8ff8/versions/latest" ## this is added manually
     }
   }
 }
