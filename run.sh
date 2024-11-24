@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Enable strict mode
+set -euo pipefail
+
 # Function to display usage information
 usage() {
   echo "Usage: $0 -w=<workspace> <terraform_command>"
