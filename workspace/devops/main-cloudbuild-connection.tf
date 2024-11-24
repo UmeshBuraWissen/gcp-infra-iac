@@ -1,54 +1,46 @@
-# resource "google_secret_manager_secret" "github_app_id" {
-#   secret_id = "github-app-id"
-#   replication {
-#     auto {}
-#   }
-# }
+# Create a secret containing the personal access token and grant permissions to the Service Agent
+resource "google_secret_manager_secret" "github_token_secret" {
+  project   = local.project.project_id
+  secret_id = "GITHUB_PAT"
 
-# resource "google_secret_manager_secret" "github_oauth_token" {
-#   secret_id = "github-oauth-token"
-#   replication {
-#     auto {}
-#   }
-# }
-
-# resource "google_secret_manager_secret_version" "github_app_id_version" {
-#   secret      = google_secret_manager_secret.github_app_id.id
-#   secret_data = "YOUR_GITHUB_APP_INSTALLATION_ID"
-# }
-
-
-# resource "google_secret_manager_secret_version" "github_oauth_token_version" {
-#   secret      = google_secret_manager_secret.github_oauth_token.id
-#   secret_data = "YOUR_GITHUB_OAUTH_TOKEN"
-# }
-
-resource "google_cloudbuildv2_connection" "github" {
-  name     = "test"
-  location = "us-central1"
-
-  project = local.project.project_id
-
-  github_config {
-    app_installation_id = 57141306
-    authorizer_credential {
-      oauth_token_secret_version = "projects/proj-dev-demo000-gbjy/secrets/test-github-oauthtoken-1d8ff8/versions/latest" ## this is added manually
-    }
+  replication {
+    auto {}
   }
 }
 
+resource "google_secret_manager_secret_version" "github_token_secret_version" {
+  secret      = google_secret_manager_secret.github_token_secret.id
+  secret_data = var.github_pat
 
-# import {
-#   to = google_cloudbuildv2_connection.github
-#   id = "projects/proj-dev-demo000-gbjy/locations/us-central1/connections/test"
-# }
+  lifecycle {
+    ignore_changes = [secret_data]
+  }
+}
 
+data "google_iam_policy" "serviceagent_secret_accessor" {
+  binding {
+    role    = "roles/secretmanager.secretAccessor"
+    members = ["serviceAccount:service-${local.project.number}@gcp-sa-cloudbuild.iam.gserviceaccount.com"]
+  }
+}
 
-resource "google_cloudbuildv2_repository" "my-repository" {
-  name     = "gcp-infra-iac"
-  location = "us-central1"
+resource "google_secret_manager_secret_iam_policy" "policy" {
+  project     = google_secret_manager_secret.github_token_secret.project
+  secret_id   = google_secret_manager_secret.github_token_secret.secret_id
+  policy_data = data.google_iam_policy.serviceagent_secret_accessor.policy_data
+}
+
+// Create the GitHub connection
+resource "google_cloudbuildv2_connection" "github" {
   project  = local.project.project_id
+  location = var.metadata.region
+  name     = "github-connection"
 
-  parent_connection = google_cloudbuildv2_connection.github.name
-  remote_uri        = "https://github.com/UmeshBuraWissen/gcp-infra-iac.git"
+  github_config {
+    app_installation_id = var.github_application_id
+    authorizer_credential {
+      oauth_token_secret_version = google_secret_manager_secret_version.github_token_secret_version.id
+    }
+  }
+  depends_on = [google_secret_manager_secret_iam_policy.policy]
 }

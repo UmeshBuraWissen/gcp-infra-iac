@@ -6,17 +6,13 @@ metadata = {
   identifier  = "devops"
 }
 
-build_config = [
-  {
-    name            = "infra-cloud-build"
-    project         = "proj-dev-demo000-gbjy"
-    disabled        = false
-    path            = "infra_cloudbuild.yaml"
-    owner           = "UmeshBuraWissen"
-    github_reponame = "gcp-infra-iac"
-    branch          = "^main$"
-    invert_regex    = false
-    service_account = "sera-dev-demo-core000@proj-dev-demo000-gbjy.iam.gserviceaccount.com"
-    _TFACTION       = "apply"
-  }
-]
+github_application_id = "57141306"
+github_pat            = "xxx"
+
+iac_build_config = {
+  build_name = "iac-build"
+  repo_name  = "gcp-infra-iac"
+  ref        = "refs/heads/main"
+  repo_url   = "https://github.com/UmeshBuraWissen/gcp-infra-iac.git"
+  file_path  = "workspace/devops/infra_cloudbuild.yaml"
+}

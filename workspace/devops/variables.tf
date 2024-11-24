@@ -26,6 +26,21 @@ variable "metadata" {
   })
 }
 
-variable "build_config" {
+variable "github_application_id" {
+  type = string
+}
 
+variable "github_pat" {
+  type      = string
+  sensitive = true
+}
+
+variable "iac_build_config" {
+  type = object({
+    build_name = string
+    repo_name  = string
+    repo_url   = string
+    ref        = string
+    file_path  = string
+  })
 }
