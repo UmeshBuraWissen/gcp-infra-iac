@@ -29,15 +29,19 @@ destroy() {
 destroy "services"
 destroy "core"
 
-# Cleanup resources
-echo "Deleting bucket: $BUCKET_NAME"
-if gsutil ls -b "gs://${BUCKET_NAME}" >/dev/null 2>&1; then
-    gsutil rm -r "gs://${BUCKET_NAME}"
-    echo "Bucket ${BUCKET_NAME} deleted successfully."
+# Normalize the bucket name to include the gs:// prefix
+BUCKET_URL="gs://${BUCKET_NAME}"
+
+# Deleting bucket
+echo "Deleting bucket: $BUCKET_URL"
+if gcloud storage buckets describe "$BUCKET_URL" --project="$PROJECT_ID" >/dev/null 2>&1; then
+    gcloud storage rm -r "$BUCKET_URL" --project="$PROJECT_ID" --quiet
+    echo "Bucket ${BUCKET_URL} deleted successfully."
 else
-    echo "Bucket ${BUCKET_NAME} does not exist or is already deleted."
+    echo "Bucket ${BUCKET_URL} does not exist or is already deleted."
 fi
 
+# Deleting project
 echo "Deleting project: $PROJECT_ID"
 if gcloud projects describe "$PROJECT_ID" >/dev/null 2>&1; then
     gcloud projects delete "$PROJECT_ID" --quiet
