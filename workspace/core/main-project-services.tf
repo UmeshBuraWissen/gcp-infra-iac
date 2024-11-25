@@ -12,6 +12,7 @@ locals {
     "sqladmin.googleapis.com",
     "servicehealth.googleapis.com",
     "networkmanagement.googleapis.com",
+    "cloudresourcemanager.googleapis.com"
   ]
 }
 
