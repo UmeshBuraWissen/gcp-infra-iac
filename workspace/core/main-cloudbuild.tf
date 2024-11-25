@@ -23,11 +23,12 @@ resource "google_cloudbuild_trigger" "iac" {
   }
 
   substitutions = {
-    _TFACTION = "apply"
+    _TFACTION   = "apply"
+    _PROJECT_ID = local.project.project_id
   }
 
   git_file_source {
-    path       = "${var.iac_build_config.filename}"
+    path       = var.iac_build_config.filename
     repository = google_cloudbuildv2_repository.iac_repo.id
     revision   = var.iac_build_config.ref
     repo_type  = "GITHUB"
