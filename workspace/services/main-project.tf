@@ -5,7 +5,7 @@ variable "project_id" {
 }
 
 data "google_project" "current" {
-  project_id = var.project_id
+  project_id = coalesce(var.project_id, local.o["core"]["project"].project_id)
 }
 
 locals {

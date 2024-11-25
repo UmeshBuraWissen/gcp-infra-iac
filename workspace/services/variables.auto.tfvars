@@ -12,7 +12,7 @@ import_state = [
     environment = "dev",
     sequence    = "000",
     region      = "us-central1"
-    identifier  = "core" ## name of current directory
+    identifier  = "core" ## name of directory to import state
   }
 ]
 
