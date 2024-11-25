@@ -6,8 +6,9 @@ metadata = {
   identifier  = "core" ## name of current directory
 }
 
+import_state = []
+
 github_application_id = "57141306"
-github_pat            = "xxx"
 
 iac_build_config = {
   build_name = "iac-build"

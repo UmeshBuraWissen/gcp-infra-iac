@@ -9,5 +9,6 @@ resource "google_storage_bucket" "log_bucket" {
 
   force_destroy = true
 
-  labels = local.labels
+  labels     = local.labels
+  depends_on = [google_project_service.project]
 }

@@ -6,6 +6,8 @@ resource "google_cloudbuildv2_repository" "iac_repo" {
 
   location = var.metadata.region
   project  = local.project.project_id
+
+  depends_on = [google_project_service.project]
 }
 
 resource "google_cloudbuild_trigger" "iac" {
@@ -32,4 +34,6 @@ resource "google_cloudbuild_trigger" "iac" {
   }
 
   service_account = google_service_account.project.id
+
+  depends_on = [google_project_service.project]
 }

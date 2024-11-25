@@ -39,3 +39,5 @@ terraform.rc
 
 **/.local/*
 /.vscode/
+
+# workspace.init

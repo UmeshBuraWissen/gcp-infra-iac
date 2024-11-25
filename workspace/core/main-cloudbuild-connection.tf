@@ -1,3 +1,9 @@
+variable "github_pat" {
+  type        = string
+  sensitive   = true
+  description = "Set this via CLI variable while running terraform apply"
+}
+
 # Create a secret containing the personal access token and grant permissions to the Service Agent
 resource "google_secret_manager_secret" "github_token_secret" {
   project   = local.project.project_id
@@ -6,6 +12,7 @@ resource "google_secret_manager_secret" "github_token_secret" {
   replication {
     auto {}
   }
+  depends_on = [google_project_service.project]
 }
 
 resource "google_secret_manager_secret_version" "github_token_secret_version" {
@@ -42,5 +49,5 @@ resource "google_cloudbuildv2_connection" "github" {
       oauth_token_secret_version = google_secret_manager_secret_version.github_token_secret_version.id
     }
   }
-  depends_on = [google_secret_manager_secret_iam_policy.policy]
+  depends_on = [google_secret_manager_secret_iam_policy.policy, google_project_service.project]
 }

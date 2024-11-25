@@ -1,8 +1,3 @@
-variable "project_id" {
-  type    = string
-  default = null
-}
-
 variable "metadata" {
   type = object({
     workload    = string

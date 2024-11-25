@@ -11,11 +11,6 @@ variable "organization" {
   }
 }
 
-variable "project_id" {
-  type    = string
-  default = "proj-dev-demo000-gbjy"
-}
-
 variable "metadata" {
   type = object({
     workload    = string
@@ -26,13 +21,18 @@ variable "metadata" {
   })
 }
 
-variable "github_application_id" {
-  type = string
+variable "import_state" {
+  type = list(object({
+    workload    = string
+    sequence    = string
+    environment = string
+    region      = string
+    identifier  = string
+  }))
 }
 
-variable "github_pat" {
-  type      = string
-  sensitive = true
+variable "github_application_id" {
+  type = string
 }
 
 variable "iac_build_config" {

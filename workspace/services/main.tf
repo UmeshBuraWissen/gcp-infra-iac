@@ -1,13 +1,5 @@
 data "google_client_config" "current" {}
 
-data "google_project" "current" {
-  project_id = coalesce(var.project_id, local.o["core"]["project"].id)
-}
-
-locals {
-  project = data.google_project.current
-}
-
 module "naming" {
   source = "../../modules/naming"
 

@@ -45,6 +45,9 @@ if [[ "$#" -lt 1 ]]; then
   usage
 fi
 
+ROOT_DIR=$(realpath "$(dirname "${BASH_SOURCE[0]}")")
+source "$ROOT_DIR/workspace.sh"
+
 # Initialize variables
 WORKSPACE=""
 COMMAND=""
@@ -52,10 +55,10 @@ COMMAND=""
 # Loop through the arguments
 for ARG in "$@"; do
   case $ARG in
-  -w=*|--workspace=*)
+  -w=* | --workspace=*)
     WORKSPACE="${ARG#*=}" # Extract the workspace value
     ;;
-  * )
+  *)
     COMMAND="$COMMAND $ARG" # Collect the terraform command
     ;;
   esac
@@ -95,7 +98,7 @@ if [[ "$COMMAND" == " init" ]]; then
   rm -rf "$TEMP_DIR"
   mkdir -p "$TEMP_DIR"
 
-  cp "$WORKSPACE_PATH/main.tf" "$WORKSPACE_PATH/variables.tf" "$WORKSPACE_PATH/variables.auto.tfvars" "$TEMP_DIR/"
+  cp "$WORKSPACE_PATH/main.tf" "$WORKSPACE_PATH/import.tf" "$WORKSPACE_PATH/variables.tf" "$WORKSPACE_PATH/variables.auto.tfvars" "$TEMP_DIR/"
 
   terraform -chdir="$TEMP_DIR" init -backend=false
   terraform -chdir="$TEMP_DIR" apply --auto-approve
@@ -104,4 +107,5 @@ if [[ "$COMMAND" == " init" ]]; then
   rm -rf "$TEMP_DIR"
 fi
 
+gcloud config set project $PROJECT_ID
 terraform -chdir="$WORKSPACE_PATH" $COMMAND
