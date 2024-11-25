@@ -69,3 +69,18 @@ variable "cloud_run_services" {
 # # create cloudrun
 # # create cloudsql
 # # 
+
+
+variable "github_application_id" {
+  type = string
+}
+
+variable "app_build_config" {
+  type = object({
+    build_name = string
+    repo_name  = string
+    repo_url   = string
+    ref        = string
+    filename   = string
+  })
+}
