@@ -16,8 +16,8 @@ locals {
     google_cloud_run                    = join("", ["crun", "-", local.resource_key_google])
     google_compute_global_address       = join("", ["glad", "-", local.resource_key_google])
     google_sql_database_instance        = join("", ["csql", "-", local.resource_key_google])
+    google_storage_bucket               = join("", ["buck", "-", local.resource_key_google])
     google_cloudbuild_trigger           = join("", ["gclbu", "-", local.resource_key_google])
-
 
     google_vpc_access_connector = join("", ["svac", "-", format("%s-%s-%s%s", var.environment, local.gcp_regions[var.region].region_code, var.workload, local.sequence)])
     # google_app_engine               = join("", ["gapp", "-", local.resource_key_google])
