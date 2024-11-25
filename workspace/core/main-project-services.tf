@@ -4,23 +4,14 @@ locals {
     "artifactregistry.googleapis.com",
     "secretmanager.googleapis.com",
     "vpcaccess.googleapis.com",
-    "file.googleapis.com",
     "servicenetworking.googleapis.com",
     "cloudbuild.googleapis.com",
     "run.googleapis.com",
     "cloudkms.googleapis.com",
-    "osconfig.googleapis.com",
-    "certificatemanager.googleapis.com",
     "cloudasset.googleapis.com",
-    "iap.googleapis.com",
     "sqladmin.googleapis.com",
-    "cloudscheduler.googleapis.com",
     "servicehealth.googleapis.com",
-    "containersecurity.googleapis.com",
     "networkmanagement.googleapis.com",
-    "dataform.googleapis.com",
-    "dataflow.googleapis.com",
-    "datapipelines.googleapis.com",
   ]
 }
 
