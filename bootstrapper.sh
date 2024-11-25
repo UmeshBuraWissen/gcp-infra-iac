@@ -45,9 +45,6 @@ check_gcloud_config() {
 validate_project() {
     echo "Checking if project: $PROJECT_ID exists..."
 
-    # Set the project context for gcloud
-    gcloud config set project "$PROJECT_ID"
-
     if ! gcloud projects describe "$PROJECT_ID" &>/dev/null; then
         echo "Project $PROJECT_ID does not exist."
         exit 1
@@ -63,13 +60,9 @@ validate_project() {
     fi
 }
 
-
 # Function: Link billing account to project
 link_billing_account() {
     echo "Checking if billing account is attached to project: $PROJECT_ID..."
-
-    # Set the project context for gcloud
-    gcloud config set project "$PROJECT_ID"
 
     billing_status=$(gcloud billing projects describe "$PROJECT_ID" --format="value(billingAccountName)" || true)
 
@@ -85,9 +78,6 @@ link_billing_account() {
 # Function: Check if the GCS bucket exists
 validate_bucket_existence() {
     echo "Checking if GCS bucket: $BUCKET_NAME exists..."
-
-    # Set the project context for gcloud
-    gcloud config set project "$PROJECT_ID"
 
     # Add the "gs://" prefix to the bucket name
     bucket_url="gs://${BUCKET_NAME}"
@@ -126,7 +116,7 @@ main() {
     echo "Starting provisioning process for project: $PROJECT_ID"
     echo "---------------------------------------------"
 
-    # Check if gcloud is authenticated
+    # Check if gcloud is authenticated and set the project
     check_gcloud_config
 
     # Validate project existence and state
