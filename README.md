@@ -58,6 +58,7 @@ END To END GCP Automation Steps:
 Step 1: Run 'gcloud auth login --update-adc' in VSCode editor in the ouput terminal
 
 Step 2: In workspace.sh update below two parameters:
+
             1. PROJECT_ID_SUFFIX="aaaa" # Has to be unique
             2. GITHUB_PAT="xxx"
 
@@ -82,10 +83,12 @@ After running './bootstrapper.sh' below GCP resources are created:
                 GCP Artifact Console URL: https://console.cloud.google.com/artifacts?referrer=search&authuser=2&inv=1&invt=Abia9Q&project=proj-dev-demo000-aaaa
 
 Step 4: We need to run the cloud run infra pipeline in GCP Cloudbuild Console
+
             1. GCP Console URL To the cloud infra pipeline: https://console.cloud.google.com/cloud-build/triggers;region=us-central1?authuser=2&inv=1&invt=Abia5Q&project=proj-dev-demo000-aaaa
             2. GCP Pipeline Logs: https://console.cloud.google.com/cloud-build/builds;region=us-central1?authuser=2&inv=1&invt=Abia5Q&project=proj-dev-demo000-aaaa
 
 Step4: Afte Running Infra pipeline below GCP resource's will be created:
+
             1. GCP Service Account for the Application Deployment
                     GCP Sercice Account Console URL: https://console.cloud.google.com/iam-admin/serviceaccounts?referrer=search&authuser=2&project=proj-dev-demo000-aaaa
             2. GCP VPC Network
@@ -108,6 +111,7 @@ Step4: Afte Running Infra pipeline below GCP resource's will be created:
                     GCP Cloud Build Trigger Console URL: https://console.cloud.google.com/cloud-build/triggers;region=us-central1?authuser=2&project=proj-dev-demo000-aaaa
 
 Step5: Once the GCP Infra pipeline is successfully executed in GCP Cloudbuild then run GCP Application Deployment Pipeline for deploying nodejs Application on Cloud Run
+
     1. It will build and push the nodejs docker image to the GCP Artifactery Registery with tag Build_ID and Latest 
     2. It will deploy the new cloud run revision with latest nodejs docker image 
     3. The latest docker image consist of nodejs application code that will deployed on GCP Cloud run and On Cloud Sql(MySql), database and table crearion is execuueted and store in the same image
