@@ -38,3 +38,14 @@ Flow:
 
 
 destroy
+
+Steps:
+
+1. Check prerequisites for packages and roles on gcp
+2. gcloud auth login --update-adc
+3.  Add values for variables in workspace.sh
+    - change suffix for project
+    - add github pat
+4. run "./bootstrapper.sh" to bootstrap project, state bucket and core folder
+5. go to cloud build and run pipeline to provision infra
+6. go to cloud build and run pipeline for docker image build and deploy it to cloudrun
