@@ -18,6 +18,7 @@ bootstrap_project() {
         # Attempt to create the project
         echo "Attempting to create project $PROJECT_ID..."
         if gcloud projects create "$PROJECT_ID"; then
+            gcloud config set project $PROJECT_ID
             gcloud billing projects link $PROJECT_ID --billing-account=$BILLING_ACCOUNT_ID
             echo "Project $PROJECT_ID created successfully."
         else
@@ -45,7 +46,7 @@ bootstrap_project() {
     fi
 
     gcloud config set project $PROJECT_ID
-    
+
     echo "-----------------------------------"
     echo "Project Bootrapping completed."
     echo "-----------------------------------"
@@ -62,7 +63,7 @@ provision_core() {
     export TF_VAR_project_id="${PROJECT_ID}"
 
     ./run.sh -w=core init
-    ./run.sh -w=core apply # --auto-approve
+    ./run.sh -w=core apply --auto-approve
 }
 
 bootstrap_project

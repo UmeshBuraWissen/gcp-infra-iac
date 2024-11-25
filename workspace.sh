@@ -1,7 +1,7 @@
 WORKLOAD="demo"
 ENVIRONMENT="dev"
 SEQ="000"
-PROJECT_ID_SUFFIX="abcd" # Has to be unique
+PROJECT_ID_SUFFIX="aaaa" # Has to be unique
 GITHUB_PAT="xxx"
 
 BILLING_ACCOUNT_ID=01CE4F-F5D80F-4EF741

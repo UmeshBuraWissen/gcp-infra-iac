@@ -26,8 +26,8 @@ destroy() {
 }
 
 # Destroy resources for specified workspaces
-# destroy "services"
-# destroy "core"
+destroy "services"
+destroy "core"
 
 # Cleanup resources
 echo "Deleting bucket: $BUCKET_NAME"
