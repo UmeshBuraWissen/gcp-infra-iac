@@ -15,6 +15,8 @@ locals {
     "roles/resourcemanager.projectIamAdmin",
     "roles/iam.securityAdmin",
     "roles/run.admin",
+    "roles/secretmanager.admin",
+    "roles/compute.networkAdmin"
   ]
 }
 
