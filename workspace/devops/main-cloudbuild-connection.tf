@@ -13,7 +13,7 @@ resource "google_secret_manager_secret_version" "github_token_secret_version" {
   secret_data = var.github_pat
 
   lifecycle {
-    ignore_changes = [secret_data]
+    # ignore_changes = [secret_data]
   }
 }
 
