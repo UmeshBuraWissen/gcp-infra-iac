@@ -27,7 +27,7 @@ resource "google_cloudbuild_trigger" "iac" {
   }
 
   git_file_source {
-    path       = "${path.module}/${var.iac_build_config.filename}"
+    path       = "${var.iac_build_config.filename}"
     repository = google_cloudbuildv2_repository.iac_repo.id
     revision   = var.iac_build_config.ref
     repo_type  = "GITHUB"

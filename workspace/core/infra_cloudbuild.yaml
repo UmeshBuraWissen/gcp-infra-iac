@@ -47,6 +47,6 @@ steps:
       terraform $_TFACTION -auto-approve
 
 #timeout = 6100s
-logsBucket: 'cloud-build-logs-gbjy' # this is created manually and granted access on service account
+logsBucket: 'cloud-build-logs-aaaa' # this is created manually and granted access on service account
 options:
   logging: GCS_ONLY

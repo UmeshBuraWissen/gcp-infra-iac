@@ -15,5 +15,5 @@ iac_build_config = {
   repo_name  = "gcp-infra-iac"
   ref        = "refs/heads/main"
   repo_url   = "https://github.com/UmeshBuraWissen/gcp-infra-iac.git"
-  filename   = "infra_cloudbuild.yaml"
+  filename   = "workspace/core/infra_cloudbuild.yaml"
 }
