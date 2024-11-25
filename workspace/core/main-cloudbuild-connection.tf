@@ -51,3 +51,7 @@ resource "google_cloudbuildv2_connection" "github" {
   }
   depends_on = [google_secret_manager_secret_iam_policy.policy, google_project_service.project]
 }
+
+output "github_connection" {
+  value = google_cloudbuildv2_connection.github
+}
