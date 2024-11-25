@@ -34,5 +34,5 @@ module "cloud_run_services" {
 }
 
 output "cloud_run_services" {
-  value = module.cloud_run_services
+  value = { for key, crun in module.cloud_run_services : key => crun.name }
 }

@@ -51,5 +51,5 @@ app_build_config = {
   repo_name  = "gcp-cloudrun-nodejs-mysql-app-deployment"
   ref        = "refs/heads/main"
   repo_url   = "https://github.com/UmeshBuraWissen/gcp-cloudrun-nodejs-mysql-app-deployment.git"
-  filename   = "app_cloudbuild.yaml"
+  filename   = "cicd_pipelines_jenkins_ado_githubactions_gcpcloudbuild_gitlab/app_cloudbuild.yaml"
 }
