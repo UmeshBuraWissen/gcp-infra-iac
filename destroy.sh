@@ -3,7 +3,7 @@ set -euo pipefail
 
 # Load prerequisites and environment variables
 ROOT_DIR=$(realpath "$(dirname "${BASH_SOURCE[0]}")")
-source "$ROOT_DIR/workspace.sh" # Ensure this sets PROJECT_ID, BUCKET_NAME, and GITHUB_PAT
+source "$ROOT_DIR/workspace.sh"  # Ensure this sets PROJECT_ID, BUCKET_NAME, and GITHUB_PAT
 
 # Function to check if gcloud is authenticated and a configuration is set
 check_gcloud_config() {
@@ -34,7 +34,21 @@ check_gcloud_config() {
     fi
 }
 
-# Function: Validate the project lifecycle state
+# Function to validate project existence
+validate_project_existence() {
+    echo "Checking if project: $PROJECT_ID exists..."
+
+    # Set the project context for gcloud
+    gcloud config set project "$PROJECT_ID"
+
+    if ! gcloud projects describe "$PROJECT_ID" &>/dev/null; then
+        echo "Project $PROJECT_ID does not exist. Exiting."
+        exit 1
+    fi
+    echo "Project $PROJECT_ID exists."
+}
+
+# Function to validate the project lifecycle state
 validate_project_state() {
     local project_id="$1"
     echo "Validating lifecycle state of project: $project_id..."
@@ -66,10 +80,11 @@ validate_bucket_existence() {
     echo "Checking if bucket: $bucket_url exists..."
 
     if ! gcloud storage buckets describe "$bucket_url" --project="$PROJECT_ID" >/dev/null 2>&1; then
-        echo "Error: Bucket $bucket_url does not exist. Exiting script."
-        exit 0
+        echo "Bucket $bucket_url does not exist. Proceeding with project deletion."
+        return 0  # Return success to proceed with project deletion
     fi
     echo "Bucket $bucket_url exists. Proceeding with cleanup."
+    return 1  # Return failure to proceed with resource destruction
 }
 
 # Function: Delete GCS bucket and its contents
@@ -88,6 +103,7 @@ delete_bucket() {
 destroy_terraform_resources() {
     local workspace="$1"
     echo "Starting Terraform resource cleanup for workspace: $workspace..."
+
     export TF_VAR_github_pat="${GITHUB_PAT}"
     export TF_VAR_project_id="${PROJECT_ID}"
 
@@ -129,22 +145,24 @@ main() {
     # Check if gcloud is authenticated
     check_gcloud_config
 
-    # Validate project state
+    # Validate project existence
+    validate_project_existence
+
+    # Validate project state (active or deletion requested)
     validate_project_state "$PROJECT_ID"
 
-    # Validate bucket existence
-    validate_bucket_existence
+    # Validate bucket existence and proceed with project deletion if it doesn't exist
+    if ! validate_bucket_existence; then
+        # Destroy Terraform resources if the bucket exists
+        for workspace in "services" "core"; do
+            destroy_terraform_resources "$workspace"
+        done
 
-    # Destroy Terraform resources for both 'services' and 'core' workspaces
-    for workspace in "services" "core"; do
-        destroy_terraform_resources "$workspace"
-    done
+        # Delete the GCS bucket
+        delete_bucket
+    fi
 
-    # Delete the GCS bucket and the GCP project
-    echo "Deleting GCS bucket..."
-    delete_bucket
-
-    echo "Deleting GCP project..."
+    # Delete the GCP project
     delete_project "$PROJECT_ID"
 
     echo "---------------------------------------------"
