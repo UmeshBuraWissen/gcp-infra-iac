@@ -46,8 +46,6 @@ cloud_run_services = [
 ]
 
 
-github_application_id = "57141306"
-
 app_build_config = {
   build_name = "app-build"
   repo_name  = "gcp-cloudrun-nodejs-mysql-app-deployment"

@@ -2,7 +2,7 @@ resource "google_cloudbuildv2_repository" "iac_repo" {
   name       = var.app_build_config.repo_name
   remote_uri = var.app_build_config.repo_url
 
-  parent_connection = google_cloudbuildv2_connection.github.name
+  parent_connection = local.o["core"]["github_connection"].name
 
   location = var.metadata.region
   project  = local.project.project_id
@@ -24,10 +24,10 @@ resource "google_cloudbuild_trigger" "iac" {
 
   substitutions = {
     _PROJECT_ID        = local.project.project_id,
-    _ARTIFACT_REGISTRY = "areg-dev-usce1-demo-core000",
+    _ARTIFACT_REGISTRY = local.o["core"]["artifact_registry"].name,
     _REGION            = var.metadata.region,
-    _CLOUD_RUN_SERVICE = "nodejs_demo_app"
-
+    _CLOUD_RUN_SERVICE = module.cloud_run_services.cloud_run["nodejs_demo_app"].name
+    _LOG_BUCKET        = local.o["core"]["log_bucket"].name
   }
 
   git_file_source {

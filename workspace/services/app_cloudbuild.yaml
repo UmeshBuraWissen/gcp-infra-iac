@@ -33,32 +33,32 @@ steps:
       - '${_REGION}'
       - '--platform'
       - 'managed'
-      - '--no-traffic' # Direct traffic to the new revision only after verification, if desired
+      # - '--no-traffic' # Direct traffic to the new revision only after verification, if desired
 
   # Optional: Shift traffic to the new revision after verification
-  - name: 'gcr.io/cloud-builders/gcloud'
-    args:
-      - 'run'
-      - 'services'
-      - 'update-traffic'
-      - '${_CLOUD_RUN_SERVICE}'
-      - '--region'
-      - '${_REGION}'
-      - '--platform'
-      - 'managed'
-      - '--to-revisions=LATEST=100'
+  # - name: 'gcr.io/cloud-builders/gcloud'
+  #   args:
+  #     - 'run'
+  #     - 'services'
+  #     - 'update-traffic'
+  #     - '${_CLOUD_RUN_SERVICE}'
+  #     - '--region'
+  #     - '${_REGION}'
+  #     - '--platform'
+  #     - 'managed'
+  #     - '--to-revisions=LATEST=100'
 
 images:
   - 'us-docker.pkg.dev/${_PROJECT_ID}/${_ARTIFACT_REGISTRY}/nodejsapp:$BUILD_ID'
   - 'us-docker.pkg.dev/${_PROJECT_ID}/${_ARTIFACT_REGISTRY}/nodejsapp:latest'
 
-logsBucket: 'cloud-build-logs-gbjy'
+logsBucket: $_LOG_BUCKET
 
 options:
   logging: GCS_ONLY
 
-substitutions:
-  _PROJECT_ID: 'proj-dev-demo000-gbjy'
-  _ARTIFACT_REGISTRY: 'areg-dev-usce1-demo-core000'
-  _CLOUD_RUN_SERVICE: 'nodejsapp'
-  _REGION: 'us-central1'
+# substitutions:
+#   _PROJECT_ID: 'proj-dev-demo000-gbjy'
+#   _ARTIFACT_REGISTRY: 'areg-dev-usce1-demo-core000'
+#   _CLOUD_RUN_SERVICE: 'nodejsapp'
+#   _REGION: 'us-central1'
