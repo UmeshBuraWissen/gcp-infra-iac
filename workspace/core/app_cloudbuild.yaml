@@ -32,7 +32,7 @@ images:
 
   - 'us-docker.pkg.dev/proj-dev-demo000-gbjy/areg-dev-usce1-demo-core000/nodejsapp:latest'
  
-logsBucket: 'terraformbackendmysqlapplication'
+logsBucket: 'cloud-build-logs-gbjy'
 
 options:
 

@@ -34,7 +34,7 @@ resource "google_cloud_run_service" "cloud_run" {
   autogenerate_revision_name = var.autogenerate_revision_name
 
   lifecycle {
-    ignore_changes = [template[0].spec[0].containers[0].image]
+    ignore_changes = [template[0].spec[0].containers[0].image, template[0].metadata[0].annotations]
   }
 }
 

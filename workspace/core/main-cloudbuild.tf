@@ -25,6 +25,7 @@ resource "google_cloudbuild_trigger" "iac" {
   substitutions = {
     _TFACTION   = "apply"
     _PROJECT_ID = local.project.project_id
+    _LOG_BUCKET = google_storage_bucket.log_bucket.name
   }
 
   git_file_source {

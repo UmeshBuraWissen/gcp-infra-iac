@@ -32,3 +32,7 @@ module "cloud_run_services" {
 
   depends_on = [module.cloudsql]
 }
+
+output "cloud_run_services" {
+  value = { for key, crun in module.cloud_run_services : key => crun.name }
+}

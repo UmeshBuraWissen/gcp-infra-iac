@@ -1,0 +1,64 @@
+steps:
+  # Step 1: Build the Docker image with both build number and "latest" tags
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '-t'
+      - 'us-docker.pkg.dev/${_PROJECT_ID}/${_ARTIFACT_REGISTRY}/nodejsapp:$BUILD_ID'
+      - '-t'
+      - 'us-docker.pkg.dev/${_PROJECT_ID}/${_ARTIFACT_REGISTRY}/nodejsapp:latest'
+      - './gcp_nodejs_app/'
+
+  # Step 2: Push the build number tag to Artifact Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'push'
+      - 'us-docker.pkg.dev/${_PROJECT_ID}/${_ARTIFACT_REGISTRY}/nodejsapp:$BUILD_ID'
+
+  # Step 3: Push the "latest" tag to Artifact Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'push'
+      - 'us-docker.pkg.dev/${_PROJECT_ID}/${_ARTIFACT_REGISTRY}/nodejsapp:latest'
+
+  # Step 4: Deploy a new revision to the existing Cloud Run service
+  - name: 'gcr.io/cloud-builders/gcloud'
+    args:
+      - 'run'
+      - 'deploy'
+      - '${_CLOUD_RUN_SERVICE}'
+      - '--image'
+      - 'us-docker.pkg.dev/${_PROJECT_ID}/${_ARTIFACT_REGISTRY}/nodejsapp:$BUILD_ID'
+      - '--region'
+      - '${_REGION}'
+      - '--platform'
+      - 'managed'
+      # - '--no-traffic' # Direct traffic to the new revision only after verification, if desired
+
+  # Optional: Shift traffic to the new revision after verification
+  # - name: 'gcr.io/cloud-builders/gcloud'
+  #   args:
+  #     - 'run'
+  #     - 'services'
+  #     - 'update-traffic'
+  #     - '${_CLOUD_RUN_SERVICE}'
+  #     - '--region'
+  #     - '${_REGION}'
+  #     - '--platform'
+  #     - 'managed'
+  #     - '--to-revisions=LATEST=100'
+
+images:
+  - 'us-docker.pkg.dev/${_PROJECT_ID}/${_ARTIFACT_REGISTRY}/nodejsapp:$BUILD_ID'
+  - 'us-docker.pkg.dev/${_PROJECT_ID}/${_ARTIFACT_REGISTRY}/nodejsapp:latest'
+
+logsBucket: $_LOG_BUCKET
+
+options:
+  logging: GCS_ONLY
+
+# substitutions:
+#   _PROJECT_ID: 'proj-dev-demo000-gbjy'
+#   _ARTIFACT_REGISTRY: 'areg-dev-usce1-demo-core000'
+#   _CLOUD_RUN_SERVICE: 'nodejsapp'
+#   _REGION: 'us-central1'

@@ -49,23 +49,13 @@ variable "cloud_run_services" {
     autogenerate_revision_name = optional(bool, true)
   }))
 }
-# variable "cloudrunsql_config" {
 
-# }
-
-# variable "sql_config" {
-
-# }
-
-
-# variable "image_name" {
-
-# }
-
-# variable "secretmanger_config" {
-
-# }
-
-# # create cloudrun
-# # create cloudsql
-# # 
+variable "app_build_config" {
+  type = object({
+    build_name = string
+    repo_name  = string
+    repo_url   = string
+    ref        = string
+    filename   = string
+  })
+}
