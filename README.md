@@ -13,14 +13,14 @@ Project Creator
 Flow:
 1. local script 
     a. will create project, backend bucket if not exists
-    b. keep data block for project and backend bucket in core
+        - ask metadata, project unique id to user
+    b. keep data block for project in core
     c. run terraform for core layer
         1. enable required services
         2. service account
-        3. artifact registry (can be moved to devops)
-        4. vpc
-    d. run terraform for devops
-        1. cloudbuild
+        3. artifact registry 
+        4. cloudbuild
+
 
 2. pipeline
     a. cloudbuild for services terraform folder

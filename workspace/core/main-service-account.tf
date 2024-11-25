@@ -29,7 +29,3 @@ resource "google_project_iam_member" "project_sa_roles" {
 
   depends_on = [data.google_project.current]
 }
-
-output "project_sa" {
-  value = google_service_account.project
-}
