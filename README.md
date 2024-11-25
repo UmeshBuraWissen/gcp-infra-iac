@@ -14,6 +14,11 @@ Flow:
 1. local script 
     a. will create project, backend bucket if not exists
         - ask metadata, project unique id to user
+        - using naming convention
+            - project name = metadata + unique id
+            - bucket name
+            - github pat
+            
     b. keep data block for project in core
     c. run terraform for core layer
         1. enable required services

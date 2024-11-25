@@ -15,7 +15,6 @@ locals {
   ]
 }
 
-
 resource "google_project_service" "project" {
   for_each = toset(local.services)
 
@@ -24,6 +23,4 @@ resource "google_project_service" "project" {
 
   disable_on_destroy         = true
   disable_dependent_services = true
-
-  depends_on = [google_project.current]
 }

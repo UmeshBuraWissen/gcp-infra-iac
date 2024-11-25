@@ -21,5 +21,5 @@ resource "google_project_iam_audit_config" "current" {
 }
 
 output "project" {
-  value = google_project.current
+  value = local.project
 }
