@@ -62,34 +62,26 @@ validate_project_state() {
 
 # Function: Check if the GCS bucket exists
 validate_bucket_existence() {
-    local bucket_name="$1"
-    local bucket_url="gs://${bucket_name}"
+    local bucket_url="gs://${BUCKET_NAME}"
     echo "Checking if bucket: $bucket_url exists..."
 
-    if gcloud storage buckets describe "$bucket_name" --project="$PROJECT_ID" >/dev/null 2>&1; then
-        echo "Bucket $bucket_url exists. Proceeding with cleanup."
-    else
+    if ! gcloud storage buckets describe "$bucket_url" --project="$PROJECT_ID" >/dev/null 2>&1; then
         echo "Error: Bucket $bucket_url does not exist. Exiting script."
         exit 0
     fi
+    echo "Bucket $bucket_url exists. Proceeding with cleanup."
 }
 
 # Function: Delete GCS bucket and its contents
 delete_bucket() {
-    local bucket_name="$1"
-    local bucket_url="gs://${bucket_name}"
+    local bucket_url="gs://${BUCKET_NAME}"
     echo "Deleting bucket: $bucket_url..."
 
-    if gcloud storage buckets describe "$bucket_name" --project="$PROJECT_ID" >/dev/null 2>&1; then
-        echo "Bucket $bucket_url exists. Deleting contents and bucket..."
-        gcloud storage rm -r "$bucket_url" --project="$PROJECT_ID" --quiet || {
-            echo "Error: Failed to delete bucket $bucket_url."
-            exit 1
-        }
-        echo "Bucket $bucket_url and its contents deleted successfully."
-    else
-        echo "Bucket $bucket_url does not exist or has already been deleted."
-    fi
+    gcloud storage rm -r "$bucket_url" --project="$PROJECT_ID" --quiet || {
+        echo "Error: Failed to delete bucket $bucket_url."
+        exit 1
+    }
+    echo "Bucket $bucket_url and its contents deleted successfully."
 }
 
 # Function: Destroy Terraform resources for a workspace
@@ -140,20 +132,17 @@ main() {
     # Validate project state
     validate_project_state "$PROJECT_ID"
 
-    # Check bucket existence
-    if ! gcloud storage buckets describe "$BUCKET_NAME" --project="$PROJECT_ID" >/dev/null 2>&1; then
-        echo "Bucket $BUCKET_NAME does not exist. Proceeding to delete the project."
-        delete_project "$PROJECT_ID"
-        exit 0
-    fi
+    # Validate bucket existence
+    validate_bucket_existence
 
-    # If bucket exists, proceed with cleanup
-    echo "Bucket $BUCKET_NAME exists. Proceeding with resource cleanup."
-    destroy_terraform_resources "services"
-    destroy_terraform_resources "core"
+    # Destroy Terraform resources for both 'services' and 'core' workspaces
+    for workspace in "services" "core"; do
+        destroy_terraform_resources "$workspace"
+    done
 
+    # Delete the GCS bucket and the GCP project
     echo "Deleting GCS bucket..."
-    delete_bucket "$BUCKET_NAME"
+    delete_bucket
 
     echo "Deleting GCP project..."
     delete_project "$PROJECT_ID"

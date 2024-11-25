@@ -1,70 +1,150 @@
 #!/bin/bash
 set -euo pipefail
 
+# Load prerequisites and environment variables
 ROOT_DIR=$(realpath "$(dirname "${BASH_SOURCE[0]}")")
-source "$ROOT_DIR/workspace.sh"
+source "$ROOT_DIR/workspace.sh"  # Ensure this sets PROJECT_ID, BUCKET_NAME, GITHUB_PAT, BILLING_ACCOUNT_ID
 
-# Print the results
-echo "Generated PROJECT_ID: $PROJECT_ID"
-echo "Generated BUCKET_NAME: $BUCKET_NAME"
+# Configurable Variables
+REGION=${REGION:-"us-central1"}  # Default region
+WORKSPACE=${WORKSPACE:-"core"}   # Default Terraform workspace
 
-bootstrap_project() {
-    # Check if the project exists using gcloud
-    # Check if the project exists and create it if necessary
-    gcloud projects describe "$PROJECT_ID" &>/dev/null
-    if [ $? -ne 0 ]; then
-        echo "Project $PROJECT_ID does not exist or you do not have permission to access it."
+# Print Initial Information
+echo "-----------------------------------"
+echo "ROOT_DIR: $ROOT_DIR"
+echo "PROJECT_ID: $PROJECT_ID"
+echo "BUCKET_NAME: $BUCKET_NAME"
+echo "Region: $REGION"
+echo "Workspace: $WORKSPACE"
+echo "-----------------------------------"
 
-        # Attempt to create the project
-        echo "Attempting to create project $PROJECT_ID..."
-        if gcloud projects create "$PROJECT_ID"; then
-            gcloud config set project $PROJECT_ID
-            gcloud billing projects link $PROJECT_ID --billing-account=$BILLING_ACCOUNT_ID
-            echo "Project $PROJECT_ID created successfully."
-        else
-            echo "Failed to create project $PROJECT_ID. Ensure you have the necessary permissions."
-            echo "You may need 'resourcemanager.projects.create' permissions on your account."
+# Function: Check if gcloud is authenticated
+check_gcloud_config() {
+    # Check if there is an active authenticated account
+    local active_account
+    active_account=$(gcloud auth list --filter="status:ACTIVE" --format="value(account)")
+
+    if [[ -z "$active_account" ]]; then
+        echo "Error: No active gcloud authentication found."
+        echo "Attempting to authenticate using 'gcloud auth login'..."
+        gcloud auth login --update-adc
+        if [ $? -ne 0 ]; then
+            echo "Error: Authentication failed. Please try again."
             exit 1
         fi
+        echo "Authentication successful."
     else
-        echo "Project $PROJECT_ID already exists."
+        echo "Authenticated as: $active_account"
     fi
 
-    echo "-----------------------------------"
-    echo "Bucket name - $BUCKET_NAME"
+    # Set the gcloud project to ensure commands use the correct project
+    gcloud config set project "$PROJECT_ID"
+}
 
-    # Check if the GCS bucket exists
-    if gcloud storage buckets describe "gs://$BUCKET_NAME" --project=$PROJECT_ID &>/dev/null; then
-        echo "Bucket $BUCKET_NAME exists. Using remote backend."
+# Function: Validate project existence and state
+validate_project() {
+    echo "Checking if project: $PROJECT_ID exists..."
+
+    # Set the project context for gcloud
+    gcloud config set project "$PROJECT_ID"
+
+    if ! gcloud projects describe "$PROJECT_ID" &>/dev/null; then
+        echo "Project $PROJECT_ID does not exist."
+        exit 1
+    fi
+
+    echo "Project $PROJECT_ID exists."
+
+    # Check if project is in DELETE_REQUESTED state
+    project_state=$(gcloud projects describe "$PROJECT_ID" --format="value(lifecycleState)")
+    if [[ "$project_state" == "DELETE_REQUESTED" ]]; then
+        echo "Project $PROJECT_ID is set for deletion. Exiting..."
+        exit 1
+    fi
+}
+
+
+# Function: Link billing account to project
+link_billing_account() {
+    echo "Checking if billing account is attached to project: $PROJECT_ID..."
+
+    # Set the project context for gcloud
+    gcloud config set project "$PROJECT_ID"
+
+    billing_status=$(gcloud billing projects describe "$PROJECT_ID" --format="value(billingAccountName)" || true)
+
+    if [[ -z "$billing_status" ]]; then
+        echo "No billing account linked. Linking billing account..."
+        gcloud billing projects link "$PROJECT_ID" --billing-account="$BILLING_ACCOUNT_ID" || { echo "ERROR: Failed to link billing account."; exit 1; }
+        echo "Billing account linked successfully."
     else
-        echo "Bucket $BUCKET_NAME does not exist. Creating bucket and using gcloud."
+        echo "Billing account already attached to the project."
+    fi
+}
 
-        # Create the bucket if it doesn't exist
-        gcloud storage buckets create "gs://$BUCKET_NAME" --location=US --project=$PROJECT_ID # You can specify your region here
+# Function: Check if the GCS bucket exists
+validate_bucket_existence() {
+    echo "Checking if GCS bucket: $BUCKET_NAME exists..."
 
+    # Set the project context for gcloud
+    gcloud config set project "$PROJECT_ID"
+
+    # Add the "gs://" prefix to the bucket name
+    bucket_url="gs://${BUCKET_NAME}"
+
+    if gcloud storage buckets describe "$bucket_url" --project="$PROJECT_ID" &>/dev/null; then
+        echo "Bucket $BUCKET_NAME exists."
+    else
+        echo "Bucket $BUCKET_NAME does not exist. Creating the bucket..."
+        gcloud storage buckets create "$bucket_url" --location="$REGION" --project="$PROJECT_ID" --uniform-bucket-level-access || { echo "ERROR: Failed to create bucket."; exit 1; }
         echo "Bucket $BUCKET_NAME created successfully."
     fi
-
-    gcloud config set project $PROJECT_ID
-
-    echo "-----------------------------------"
-    echo "Project Bootrapping completed."
-    echo "-----------------------------------"
 }
 
+# Function: Provision Terraform Core
 provision_core() {
-    WORKSPACE=${1:-"core"} # Default workspace is 'core'
-    WORKSPACE_PATH="workspace/$WORKSPACE"
+    echo "Provisioning Terraform resources for workspace: $WORKSPACE"
 
-    ROOT_DIR=$(realpath "$(dirname "${BASH_SOURCE[0]}")")
+    export TF_VAR_github_pat="$GITHUB_PAT"
+    export TF_VAR_project_id="$PROJECT_ID"
 
-    cd $ROOT_DIR
-    export TF_VAR_github_pat="${GITHUB_PAT}"
-    export TF_VAR_project_id="${PROJECT_ID}"
+    cd "$ROOT_DIR"
+    if [ ! -f ./run.sh ]; then
+        echo "ERROR: run.sh script not found in $ROOT_DIR."
+        exit 1
+    fi
 
-    ./run.sh -w=core init
-    ./run.sh -w=core apply --auto-approve
+    ./run.sh -w="$WORKSPACE" init || { echo "ERROR: Terraform init failed."; exit 1; }
+    ./run.sh -w="$WORKSPACE" apply --auto-approve || { echo "ERROR: Terraform apply failed."; exit 1; }
+
+    echo "Terraform provisioning completed successfully."
 }
 
-bootstrap_project
-provision_core
+# Main Script Execution
+main() {
+    echo "---------------------------------------------"
+    echo "Starting provisioning process for project: $PROJECT_ID"
+    echo "---------------------------------------------"
+
+    # Check if gcloud is authenticated
+    check_gcloud_config
+
+    # Validate project existence and state
+    validate_project
+
+    # Link billing account if necessary
+    link_billing_account
+
+    # Check if bucket exists and create if necessary
+    validate_bucket_existence
+
+    # Provision core services using Terraform
+    provision_core
+
+    echo "---------------------------------------------"
+    echo "Provisioning process completed successfully!"
+    echo "---------------------------------------------"
+}
+
+# Run the main function
+main
