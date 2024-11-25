@@ -63,6 +63,7 @@ Step 2: In workspace.sh update below two parameters:
 
 Step 3: Run './bootstrapper.sh' in VSCode editor in the ouput terminal
 After running './bootstrapper.sh' below GCP resources are created:
+
     The below GCP resoureces will created using gcloud commands:
         1. GCP PROJECT(proj-dev-demo000-aaaa)  # the suffix 'aaaa' will be updated during every run
         2. GCP Storage Bucket For gcs backend
