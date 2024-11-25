@@ -6,6 +6,16 @@ metadata = {
   identifier  = "services"
 }
 
+import_state = [
+  {
+    workload    = "demo",
+    environment = "dev",
+    sequence    = "000",
+    region      = "us-central1"
+    identifier  = "core" ## name of current directory
+  }
+]
+
 cloudsql = [
   {
     purpose          = "node_js_db"

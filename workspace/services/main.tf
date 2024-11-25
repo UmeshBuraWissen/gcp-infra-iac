@@ -1,12 +1,7 @@
-# data "google_organization" "org" {
-#   organization = var.organization.id
-#   domain       = var.organization.domain
-# }
-
 data "google_client_config" "current" {}
 
 data "google_project" "current" {
-  project_id = coalesce(var.project_id, module.naming.resource_name.google_project)
+  project_id = coalesce(var.project_id, local.o["core"]["project"].id)
 }
 
 locals {
