@@ -23,7 +23,7 @@ echo "============================================="
 
 # Function to check if gcloud is authenticated and a configuration is set
 check_gcloud_config() {
-    echo ">>> STEP: Checking Google Cloud authentication..."
+    echo -e "\n### STEP: Checking Google Cloud authentication..."
 
     local active_account
     active_account=$(gcloud auth list --filter="status:ACTIVE" --format="value(account)")
@@ -52,7 +52,7 @@ check_gcloud_config() {
 
 # Function to validate project existence
 validate_project_existence() {
-    echo ">>> STEP: Validating project existence..."
+    echo -e "\n### STEP: Validating project existence..."
 
     if ! gcloud projects describe "$PROJECT_ID" &>/dev/null; then
         echo "!!! ERROR: Project $PROJECT_ID does not exist. Exiting."
@@ -64,7 +64,7 @@ validate_project_existence() {
 # Function to validate the project lifecycle state
 validate_project_state() {
     local project_id="$1"
-    echo ">>> STEP: Validating lifecycle state of project: $project_id..."
+    echo -e "\n### STEP: Validating lifecycle state of project: $project_id..."
     local lifecycle_state
     lifecycle_state=$(gcloud projects describe "$project_id" --format="value(lifecycleState)" 2>/dev/null || true)
 
@@ -91,7 +91,7 @@ validate_project_state() {
 # Function: Check if the GCS bucket exists
 validate_bucket_existence() {
     local bucket_url="gs://${BUCKET_NAME}"
-    echo ">>> STEP: Checking if bucket: $bucket_url exists..."
+    echo -e "\n### STEP: Checking if bucket: $bucket_url exists..."
 
     if ! gcloud storage buckets describe "$bucket_url" --project="$PROJECT_ID" >/dev/null 2>&1; then
         echo ">>> Bucket $bucket_url does not exist. Proceeding with project deletion."
@@ -104,7 +104,7 @@ validate_bucket_existence() {
 # Function: Delete GCS bucket and its contents
 delete_bucket() {
     local bucket_url="gs://${BUCKET_NAME}"
-    echo ">>> STEP: Deleting bucket: $bucket_url..."
+    echo -e "\n### STEP: Deleting bucket: $bucket_url..."
 
     gcloud storage rm -r "$bucket_url" --project="$PROJECT_ID" --quiet || {
         echo "!!! ERROR: Failed to delete bucket $bucket_url."
@@ -116,7 +116,7 @@ delete_bucket() {
 # Function: Destroy Terraform resources for a workspace
 destroy_terraform_resources() {
     local workspace="$1"
-    echo ">>> STEP: Cleaning up Terraform resources for workspace: $workspace..."
+    echo -e "\n### STEP: Cleaning up Terraform resources for workspace: $workspace..."
 
     export TF_VAR_github_pat="${GITHUB_PAT}"
     export TF_VAR_project_id="${PROJECT_ID}"
@@ -138,7 +138,7 @@ destroy_terraform_resources() {
 # Function: Delete the GCP project
 delete_project() {
     local project_id="$1"
-    echo ">>> STEP: Deleting project: $project_id..."
+    echo -e "\n### STEP: Deleting project: $project_id..."
     if gcloud projects describe "$project_id" >/dev/null 2>&1; then
         gcloud projects delete "$project_id" --quiet || {
             echo "!!! ERROR: Failed to delete project $project_id."

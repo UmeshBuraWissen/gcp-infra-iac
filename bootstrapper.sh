@@ -29,7 +29,7 @@ echo "============================================="
 
 # Function: Check if gcloud is authenticated
 check_gcloud_config() {
-    echo ">>> STEP: Checking Google Cloud authentication..."
+    echo -e "\n### STEP: Checking Google Cloud authentication..."
 
     local active_account
     active_account=$(gcloud auth list --filter="status:ACTIVE" --format="value(account)")
@@ -50,7 +50,7 @@ check_gcloud_config() {
 
 # Function: Validate project existence and create if necessary
 validate_project() {
-    echo ">>> STEP: Validating project existence..."
+    echo -e "\n### STEP: Validating project existence..."
 
     if ! gcloud projects describe "$PROJECT_ID" &>/dev/null; then
         echo ">>> Project $PROJECT_ID does not exist."
@@ -73,7 +73,7 @@ validate_project() {
 
 # Function: Link billing account to project
 link_billing_account() {
-    echo ">>> STEP: Linking billing account to project..."
+    echo -e "\n### STEP: Linking billing account to project..."
 
     billing_status=$(gcloud billing projects describe "$PROJECT_ID" --format="value(billingAccountName)" || true)
 
@@ -92,7 +92,7 @@ link_billing_account() {
 
 # Function: Check if the GCS bucket exists
 validate_bucket_existence() {
-    echo ">>> STEP: Validating GCS bucket existence..."
+    echo -e "\n### STEP: Validating GCS bucket existence..."
 
     bucket_url="gs://${BUCKET_NAME}"
 
@@ -111,7 +111,7 @@ validate_bucket_existence() {
 
 # Function: Provision Terraform Core
 provision_core() {
-    echo ">>> STEP: Provisioning Terraform resources for workspace: $WORKSPACE..."
+    echo -e "\n### STEP: Provisioning Terraform resources for workspace: $WORKSPACE..."
 
     cd "$ROOT_DIR"
     if [ ! -f ./run.sh ]; then
