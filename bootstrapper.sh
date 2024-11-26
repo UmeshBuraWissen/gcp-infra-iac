@@ -55,7 +55,7 @@ validate_project() {
     if ! gcloud projects describe "$PROJECT_ID" &>/dev/null; then
         echo ">>> Project $PROJECT_ID does not exist."
         echo ">>> Creating project: $PROJECT_ID..."
-        gcloud projects create "$PROJECT_ID" --name="$PROJECT_ID" --set-as-default || {
+        gcloud projects create "$PROJECT_ID" --name="$PROJECT_ID" --organization="$ORGANIZATION_ID" --set-as-default || {
             echo "!!! ERROR: Failed to create project $PROJECT_ID."
             exit 1
         }
