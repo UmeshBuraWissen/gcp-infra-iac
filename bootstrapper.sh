@@ -3,11 +3,18 @@ set -euo pipefail
 
 # Load prerequisites and environment variables
 ROOT_DIR=$(realpath "$(dirname "${BASH_SOURCE[0]}")")
-source "$ROOT_DIR/workspace.sh"  # Ensure this sets PROJECT_ID, BUCKET_NAME, GITHUB_PAT, BILLING_ACCOUNT_ID
+source "$ROOT_DIR/workspace.sh" # Ensure this sets PROJECT_ID, BUCKET_NAME, GITHUB_PAT, BILLING_ACCOUNT_ID
 
 # Configurable Variables
-REGION=${REGION:-"us-central1"}  # Default region
-WORKSPACE=${WORKSPACE:-"core"}   # Default Terraform workspace
+REGION=${REGION:-"us-central1"} # Default region
+WORKSPACE=${WORKSPACE:-"core"}  # Default Terraform workspace
+
+# Generate PROJECT_ID and BUCKET_NAME programmatically
+PROJECT_ID="proj-${ENVIRONMENT}-${WORKLOAD}${SEQ}-${PROJECT_ID_SUFFIX}"
+BUCKET_NAME="buck-tf-${ENVIRONMENT}-${WORKLOAD}${SEQ}"
+
+export TF_VAR_github_pat="${GITHUB_PAT}"
+export TF_VAR_project_id="${PROJECT_ID}"
 
 # Print Initial Information
 echo "-----------------------------------"
@@ -38,19 +45,23 @@ check_gcloud_config() {
     fi
 
     # Set the gcloud project to ensure commands use the correct project
-    gcloud config set project "$PROJECT_ID"
+    # gcloud config set project "$PROJECT_ID"
 }
 
-# Function: Validate project existence and state
+# Function: Validate project existence and create if necessary
 validate_project() {
     echo "Checking if project: $PROJECT_ID exists..."
 
     if ! gcloud projects describe "$PROJECT_ID" &>/dev/null; then
-        echo "Project $PROJECT_ID does not exist."
-        exit 1
+        echo "Project $PROJECT_ID does not exist. Creating the project..."
+        gcloud projects create "$PROJECT_ID" --name="$PROJECT_ID" --set-as-default || {
+            echo "ERROR: Failed to create project."
+            exit 1
+        }
+        echo "Project $PROJECT_ID created successfully."
+    else
+        echo "Project $PROJECT_ID exists."
     fi
-
-    echo "Project $PROJECT_ID exists."
 
     # Check if project is in DELETE_REQUESTED state
     project_state=$(gcloud projects describe "$PROJECT_ID" --format="value(lifecycleState)")
@@ -68,7 +79,10 @@ link_billing_account() {
 
     if [[ -z "$billing_status" ]]; then
         echo "No billing account linked. Linking billing account..."
-        gcloud billing projects link "$PROJECT_ID" --billing-account="$BILLING_ACCOUNT_ID" || { echo "ERROR: Failed to link billing account."; exit 1; }
+        gcloud billing projects link "$PROJECT_ID" --billing-account="$BILLING_ACCOUNT_ID" || {
+            echo "ERROR: Failed to link billing account."
+            exit 1
+        }
         echo "Billing account linked successfully."
     else
         echo "Billing account already attached to the project."
@@ -86,7 +100,10 @@ validate_bucket_existence() {
         echo "Bucket $BUCKET_NAME exists."
     else
         echo "Bucket $BUCKET_NAME does not exist. Creating the bucket..."
-        gcloud storage buckets create "$bucket_url" --location="$REGION" --project="$PROJECT_ID" --uniform-bucket-level-access || { echo "ERROR: Failed to create bucket."; exit 1; }
+        gcloud storage buckets create "$bucket_url" --location="$REGION" --project="$PROJECT_ID" --uniform-bucket-level-access || {
+            echo "ERROR: Failed to create bucket."
+            exit 1
+        }
         echo "Bucket $BUCKET_NAME created successfully."
     fi
 }
@@ -104,8 +121,14 @@ provision_core() {
         exit 1
     fi
 
-    ./run.sh -w="$WORKSPACE" init || { echo "ERROR: Terraform init failed."; exit 1; }
-    ./run.sh -w="$WORKSPACE" apply --auto-approve || { echo "ERROR: Terraform apply failed."; exit 1; }
+    ./run.sh -w="$WORKSPACE" init || {
+        echo "ERROR: Terraform init failed."
+        exit 1
+    }
+    ./run.sh -w="$WORKSPACE" apply --auto-approve || {
+        echo "ERROR: Terraform apply failed."
+        exit 1
+    }
 
     echo "Terraform provisioning completed successfully."
 }
@@ -129,7 +152,7 @@ main() {
     validate_bucket_existence
 
     # Provision core services using Terraform
-    provision_core
+    # provision_core
 
     echo "---------------------------------------------"
     echo "Provisioning process completed successfully!"

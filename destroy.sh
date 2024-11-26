@@ -3,7 +3,21 @@ set -euo pipefail
 
 # Load prerequisites and environment variables
 ROOT_DIR=$(realpath "$(dirname "${BASH_SOURCE[0]}")")
-source "$ROOT_DIR/workspace.sh"  # Ensure this sets PROJECT_ID, BUCKET_NAME, and GITHUB_PAT
+source "$ROOT_DIR/workspace.sh" # Ensure this sets PROJECT_ID, BUCKET_NAME, and GITHUB_PAT
+
+# Generate PROJECT_ID and BUCKET_NAME programmatically
+PROJECT_ID="proj-${ENVIRONMENT}-${WORKLOAD}${SEQ}-${PROJECT_ID_SUFFIX}"
+BUCKET_NAME="buck-tf-${ENVIRONMENT}-${WORKLOAD}${SEQ}"
+
+export TF_VAR_github_pat="${GITHUB_PAT}"
+export TF_VAR_project_id="${PROJECT_ID}"
+
+# Print Initial Information
+echo "-----------------------------------"
+echo "ROOT_DIR: $ROOT_DIR"
+echo "PROJECT_ID: $PROJECT_ID"
+echo "BUCKET_NAME: $BUCKET_NAME"
+echo "-----------------------------------"
 
 # Function to check if gcloud is authenticated and a configuration is set
 check_gcloud_config() {
@@ -39,7 +53,7 @@ validate_project_existence() {
     echo "Checking if project: $PROJECT_ID exists..."
 
     # Set the project context for gcloud
-    gcloud config set project "$PROJECT_ID"
+    # gcloud config set project "$PROJECT_ID"
 
     if ! gcloud projects describe "$PROJECT_ID" &>/dev/null; then
         echo "Project $PROJECT_ID does not exist. Exiting."
@@ -60,17 +74,17 @@ validate_project_state() {
     fi
 
     case "$lifecycle_state" in
-        ACTIVE)
-            echo "Project $project_id is ACTIVE. Proceeding with cleanup."
-            ;;
-        DELETE_REQUESTED)
-            echo "Project $project_id is scheduled for deletion. No further actions required."
-            exit 0
-            ;;
-        *)
-            echo "Unexpected lifecycle state: $lifecycle_state. Exiting."
-            exit 1
-            ;;
+    ACTIVE)
+        echo "Project $project_id is ACTIVE. Proceeding with cleanup."
+        ;;
+    DELETE_REQUESTED)
+        echo "Project $project_id is scheduled for deletion. No further actions required."
+        exit 0
+        ;;
+    *)
+        echo "Unexpected lifecycle state: $lifecycle_state. Exiting."
+        exit 1
+        ;;
     esac
 }
 
@@ -81,10 +95,10 @@ validate_bucket_existence() {
 
     if ! gcloud storage buckets describe "$bucket_url" --project="$PROJECT_ID" >/dev/null 2>&1; then
         echo "Bucket $bucket_url does not exist. Proceeding with project deletion."
-        return 0  # Return success to proceed with project deletion
+        return 0 # Return success to proceed with project deletion
     fi
     echo "Bucket $bucket_url exists. Proceeding with cleanup."
-    return 1  # Return failure to proceed with resource destruction
+    return 1 # Return failure to proceed with resource destruction
 }
 
 # Function: Delete GCS bucket and its contents
@@ -154,9 +168,9 @@ main() {
     # Validate bucket existence and proceed with project deletion if it doesn't exist
     if ! validate_bucket_existence; then
         # Destroy Terraform resources if the bucket exists
-        for workspace in "services" "core"; do
-            destroy_terraform_resources "$workspace"
-        done
+        # for workspace in "services" "core"; do
+        #     destroy_terraform_resources "$workspace"
+        # done
 
         # Delete the GCS bucket
         delete_bucket
