@@ -16,8 +16,6 @@ export TF_VAR_project_id="${PROJECT_ID}"
 
 # Print Initial Information
 echo "============================================="
-echo "           SCRIPT EXECUTION STARTED"
-echo "============================================="
 echo "ROOT_DIR: $ROOT_DIR"
 echo "PROJECT_ID: $PROJECT_ID"
 echo "BUCKET_NAME: $BUCKET_NAME"
