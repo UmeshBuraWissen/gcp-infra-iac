@@ -5,7 +5,7 @@ cat banner
 
 # Load prerequisites and environment variables
 ROOT_DIR=$(realpath "$(dirname "${BASH_SOURCE[0]}")")
-source "$ROOT_DIR/workspace.sh" # Ensure this sets PROJECT_ID, BUCKET_NAME, GITHUB_PAT, BILLING_ACCOUNT_ID
+source "$ROOT_DIR/workspace.ini" # Ensure this sets PROJECT_ID, BUCKET_NAME, GITHUB_PAT, BILLING_ACCOUNT_ID
 
 # Configurable Variables
 REGION=${REGION:-"us-central1"} # Default region

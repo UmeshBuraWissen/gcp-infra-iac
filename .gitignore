@@ -41,3 +41,4 @@ terraform.rc
 /.vscode/
 
 # workspace.init
+workspace.ini

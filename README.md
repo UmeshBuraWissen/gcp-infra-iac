@@ -43,7 +43,7 @@ Steps:
 
 1. Check prerequisites for packages and roles on gcp
 2. gcloud auth login --update-adc
-3.  Add values for variables in workspace.sh
+3.  Add values for variables in workspace.ini
     - change suffix for project
     - add github pat
 4. run "./bootstrapper.sh" to bootstrap project, state bucket and core folder
@@ -57,7 +57,7 @@ END To END GCP Automation Steps:
 
 Step 1: Run 'gcloud auth login --update-adc' in VSCode editor in the ouput terminal
 
-Step 2: In workspace.sh update below two parameters:
+Step 2: In workspace.ini update below two parameters:
 
             1. PROJECT_ID_SUFFIX="aaaa" # Has to be unique
             2. GITHUB_PAT="xxx"

@@ -40,8 +40,8 @@ This workflow consists of two main stages:
    gcloud auth login --update-adc
    ```
 
-2. **Update `workspace.sh` Configuration**  
-   In the `workspace.sh` file, set the following parameters:
+2. **Update `workspace.ini` Configuration**  
+   In the `workspace.ini` file, set the following parameters:
    - `PROJECT_ID_SUFFIX="aaaa"` # Ensure this is unique for each run
    - `GITHUB_PAT="xxx"` # Provide your GitHub Personal Access Token
 

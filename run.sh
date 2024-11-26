@@ -46,7 +46,7 @@ if [[ "$#" -lt 1 ]]; then
 fi
 
 ROOT_DIR=$(realpath "$(dirname "${BASH_SOURCE[0]}")")
-source "$ROOT_DIR/workspace.sh"
+source "$ROOT_DIR/workspace.ini"
 
 # Initialize variables
 WORKSPACE=""

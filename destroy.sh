@@ -5,7 +5,7 @@ cat banner
 
 # Load prerequisites and environment variables
 ROOT_DIR=$(realpath "$(dirname "${BASH_SOURCE[0]}")")
-source "$ROOT_DIR/workspace.sh" # Ensure this sets PROJECT_ID, BUCKET_NAME, and GITHUB_PAT
+source "$ROOT_DIR/workspace.ini" # Ensure this sets PROJECT_ID, BUCKET_NAME, and GITHUB_PAT
 
 # Generate PROJECT_ID and BUCKET_NAME programmatically
 PROJECT_ID="proj-${ENVIRONMENT}-${WORKLOAD}${SEQ}-${PROJECT_ID_SUFFIX}"
