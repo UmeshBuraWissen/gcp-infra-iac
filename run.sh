@@ -11,6 +11,10 @@ usage() {
   exit 1
 }
 
+# Generate PROJECT_ID and BUCKET_NAME programmatically
+PROJECT_ID="proj-${ENVIRONMENT}-${WORKLOAD}${SEQ}-${PROJECT_ID_SUFFIX}"
+BUCKET_NAME="buck-tf-${ENVIRONMENT}-${WORKLOAD}${SEQ}"
+
 # Function to clean up Terraform-related files in a given directory
 reset() {
   TARGET_DIR="$1" # Workspace directory, properly quoted
