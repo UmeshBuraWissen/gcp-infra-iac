@@ -1,15 +1,9 @@
 WORKLOAD="demo"
 ENVIRONMENT="dev"
 SEQ="000"
-PROJECT_ID_SUFFIX="aaaa" # Has to be unique
-GITHUB_PAT="xxx"
+PROJECT_ID_SUFFIX="xxxx" # Has to be unique
+
+# Add your GitHub PAT (needs to have access on repos you are using and google cloud build application) here
+GITHUB_PAT="***" 
 
 BILLING_ACCOUNT_ID=01CE4F-F5D80F-4EF741
-
-# Generate PROJECT_ID and BUCKET_NAME programmatically
-PROJECT_ID="proj-${ENVIRONMENT}-${WORKLOAD}${SEQ}-${PROJECT_ID_SUFFIX}"
-BUCKET_NAME="buck-tf-${ENVIRONMENT}-${WORKLOAD}${SEQ}"
-
-export TF_VAR_github_pat="${GITHUB_PAT}"
-export TF_VAR_project_id="${PROJECT_ID}"
-
