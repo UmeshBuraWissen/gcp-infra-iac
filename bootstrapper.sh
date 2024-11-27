@@ -34,11 +34,12 @@ check_gcloud_config() {
     # Check if credentials.json is present in the root directory
     if [[ -f "$ROOT_DIR/credentials.json" ]]; then
         # Set GOOGLE_APPLICATION_CREDENTIALS to the full path of the credentials.json file
+        gcloud auth login --cred-file="$ROOT_DIR/credentials.json"
         export GOOGLE_APPLICATION_CREDENTIALS="$ROOT_DIR/credentials.json"
         echo ">>> Using $GOOGLE_APPLICATION_CREDENTIALS"
     else
         echo ">>> No $ROOT_DIR/credentials.json found. Checking active gcloud authentication..."
-        
+
         # Check for an active gcloud account
         local active_account
         active_account=$(gcloud auth list --filter="status:ACTIVE" --format="value(account)")
