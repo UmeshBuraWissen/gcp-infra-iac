@@ -55,14 +55,18 @@ Steps:
 
 END To END GCP Automation Steps:
 
-Step 1: Run 'gcloud auth login --update-adc' in VSCode editor in the ouput terminal
+Step 1: If we want to run terraform script using service account, add the 'credentials.json' in the root directory. Otherwise script will run using active account or else it will prompt user to login.
 
-Step 2: In workspace.ini update below two parameters:
+Step 2: Create a copy of this 'workspace_template.ini' file in root directory and name it "workspace.ini".
+
+Step 3: In workspace.ini update below two parameters:
 
             1. PROJECT_ID_SUFFIX="aaaa" # Has to be unique
             2. GITHUB_PAT="xxx"
+            3. ORGANIZATION_ID="501043380274"
+            4. BILLING_ACCOUNT_ID="01CE4F-F5D80F-4EF741"
 
-Step 3: Run './bootstrapper.sh' in VSCode editor in the ouput terminal
+Step 4: Run './bootstrapper.sh' in VSCode editor in the ouput terminal
 After running './bootstrapper.sh' below GCP resources are created:
 
     The below GCP resoureces will created using gcloud commands:
@@ -71,6 +75,7 @@ After running './bootstrapper.sh' below GCP resources are created:
                 GCP Storage Bucket Console URL: https://console.cloud.google.com/storage/browser?project=proj-dev-demo000-aaaa
     
     The below GCP resoureces will created from '/workspace/core' folder using Terraform 
+    auth.tf will be created after running './bootstrapper.sh' command which is used for providers and backend.
         1. GCP Service Account With Role
                 GCP Sercice Account Console URL: https://console.cloud.google.com/iam-admin/serviceaccounts?referrer=search&authuser=2&project=proj-dev-demo000-aaaa
         2. GCP Storage Log Bucket
@@ -82,12 +87,12 @@ After running './bootstrapper.sh' below GCP resources are created:
         5. GCP Artifact Registery For Application Code Images
                 GCP Artifact Console URL: https://console.cloud.google.com/artifacts?referrer=search&authuser=2&inv=1&invt=Abia9Q&project=proj-dev-demo000-aaaa
 
-Step 4: We need to run the cloud run infra pipeline in GCP Cloudbuild Console
+Step 5: We need to run the cloud run infra pipeline in GCP Cloudbuild Console
 
             1. GCP Console URL To the cloud infra pipeline: https://console.cloud.google.com/cloud-build/triggers;region=us-central1?authuser=2&inv=1&invt=Abia5Q&project=proj-dev-demo000-aaaa
             2. GCP Pipeline Logs: https://console.cloud.google.com/cloud-build/builds;region=us-central1?authuser=2&inv=1&invt=Abia5Q&project=proj-dev-demo000-aaaa
 
-Step4: Afte Running Infra pipeline below GCP resource's will be created:
+Step 6: Afte Running Infra pipeline below GCP resource's will be created:
 
             1. GCP Service Account for the Application Deployment
                     GCP Sercice Account Console URL: https://console.cloud.google.com/iam-admin/serviceaccounts?referrer=search&authuser=2&project=proj-dev-demo000-aaaa
@@ -110,11 +115,37 @@ Step4: Afte Running Infra pipeline below GCP resource's will be created:
             10. GCP Cloud Build Trigger for the Application Deployment Pipeline
                     GCP Cloud Build Trigger Console URL: https://console.cloud.google.com/cloud-build/triggers;region=us-central1?authuser=2&project=proj-dev-demo000-aaaa
 
-Step5: Once the GCP Infra pipeline is successfully executed in GCP Cloudbuild then run GCP Application Deployment Pipeline for deploying nodejs Application on Cloud Run
+Step 7: Once the GCP Infra pipeline is successfully executed in GCP Cloudbuild then run GCP Application Deployment Pipeline for deploying nodejs Application on Cloud Run
 
     1. It will build and push the nodejs docker image to the GCP Artifactery Registery with tag Build_ID and Latest 
     2. It will deploy the new cloud run revision with latest nodejs docker image 
     3. The latest docker image consist of nodejs application code that will deployed on GCP Cloud run and On Cloud Sql(MySql), database and table crearion is execuueted and store in the same image
 
-Step6: After Successfully deployment of image on the GCP Cloud Run, it will generate a default url in the gcp console: 
+Step 8: After Successfully deployment of image on the GCP Cloud Run, it will generate a default url in the gcp console: 
             Base Url: https://console.cloud.google.com/run?referrer=search&authuser=2&project=proj-dev-demo000-aaaa&inv=1&invt=Abia9Q
+
+
+Step 9: For the destroying the entire infrastrure use below command
+                ./destroy.sh
+
+For the destroying the entire infrastrure including, project, backend, serivce account, artifact registery, cloudbuild registery connection for IAC, cloudbuild trigger for IAC as part of the core.
+After successfully, it will start destroy cloud sql, cloud run, vpc serverless access connector, services account for application, firewall rule, vpc network peering, cloudbuild repository connection for the application pipeline and cloudbuild trigger for the application pipeline as part of services(IAC).
+
+
+When you want to run terraform locallly we need use below commands
+
+1. Terraform Init
+        ./run.sh -w=dir init (if we want to run core folder then value for 'dir' will be 'core' and for the services folder value for 'dir' will be 'services')
+        
+        example for the core folder: ./run.sh -w=core inti
+
+2. Terraform Plan
+        ./run.sh -w=dir plan
+
+3. Terraform Apply
+        ./run.sh -w=dir apply
+
+4. For the cleaning the repository 
+        ./run.sh -w=dir reset (it will delete terraform local folders, cache)
+
+
