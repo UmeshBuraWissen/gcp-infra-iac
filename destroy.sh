@@ -25,24 +25,36 @@ echo "============================================="
 check_gcloud_config() {
     echo -e "\n### STEP: Checking Google Cloud authentication..."
 
-    local active_account
-    active_account=$(gcloud auth list --filter="status:ACTIVE" --format="value(account)")
+    # Check if credentials.json is present in the root directory
+    if [[ -f "$ROOT_DIR/credentials.json" ]]; then
+        # Set GOOGLE_APPLICATION_CREDENTIALS to the full path of the credentials.json file
+        export GOOGLE_APPLICATION_CREDENTIALS="$ROOT_DIR/credentials.json"
+        echo ">>> Using $GOOGLE_APPLICATION_CREDENTIALS"
+    else
+        echo ">>> No $ROOT_DIR/credentials.json found. Checking active gcloud authentication..."
+        
+        # Check for an active gcloud account
+        local active_account
+        active_account=$(gcloud auth list --filter="status:ACTIVE" --format="value(account)")
 
-    if [[ -z "$active_account" ]]; then
-        echo "!!! ERROR: No active Google Cloud authentication found."
-        echo ">>> Attempting to authenticate using 'gcloud auth login'..."
-        gcloud auth login --update-adc
-        if [ $? -ne 0 ]; then
-            echo "!!! ERROR: Authentication failed. Please try again."
-            exit 1
+        if [[ -z "$active_account" ]]; then
+            echo ">>> No active Google Cloud authentication found."
+            echo ">>> Attempting to authenticate using 'gcloud auth login'..."
+            gcloud auth login --update-adc
+            if [[ $? -ne 0 ]]; then
+                echo "!!! ERROR: Google Cloud authentication failed. Please try again."
+                exit 1
+            fi
+            echo ">>> Authentication successful."
+        else
+            echo ">>> Authenticated as: $active_account"
         fi
-        echo ">>> Authentication successful."
-        return
     fi
 
-    echo ">>> Authenticated as: $active_account"
+    # Check the active gcloud configuration
     local active_config
     active_config=$(gcloud config configurations list --filter="IS_ACTIVE:true" --format="value(NAME)")
+
     if [[ -n "$active_config" ]]; then
         echo ">>> Active gcloud configuration: $active_config"
     else

@@ -44,3 +44,11 @@ variable "iac_build_config" {
     filename   = string
   })
 }
+
+variable "project_owners" {
+  type = list(string)
+  default = [
+    "user:saish.patil@wissen.com",
+    "user:umesh.bura@wissen.com",
+  ]
+}

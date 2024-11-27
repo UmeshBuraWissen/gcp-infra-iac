@@ -11,9 +11,23 @@ usage() {
   exit 1
 }
 
+# Load prerequisites and environment variables
+ROOT_DIR=$(realpath "$(dirname "${BASH_SOURCE[0]}")")
+source "$ROOT_DIR/workspace.ini" # Ensure this sets PROJECT_ID, BUCKET_NAME, GITHUB_PAT, BILLING_ACCOUNT_ID
+
 # Generate PROJECT_ID and BUCKET_NAME programmatically
 PROJECT_ID="proj-${ENVIRONMENT}-${WORKLOAD}${SEQ}-${PROJECT_ID_SUFFIX}"
 BUCKET_NAME="buck-tf-${ENVIRONMENT}-${WORKLOAD}${SEQ}"
+
+export TF_VAR_github_pat="${GITHUB_PAT}"
+export TF_VAR_project_id="${PROJECT_ID}"
+
+# Check if credentials.json is present in the root directory
+if [[ -f "$ROOT_DIR/credentials.json" ]]; then
+  # Set GOOGLE_APPLICATION_CREDENTIALS to the full path of the credentials.json file
+  export GOOGLE_APPLICATION_CREDENTIALS="$ROOT_DIR/credentials.json"
+  echo ">>> Using $GOOGLE_APPLICATION_CREDENTIALS"
+fi
 
 # Function to clean up Terraform-related files in a given directory
 reset() {

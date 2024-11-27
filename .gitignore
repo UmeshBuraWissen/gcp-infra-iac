@@ -42,3 +42,4 @@ terraform.rc
 
 # workspace.init
 workspace.ini
+credentials.json
