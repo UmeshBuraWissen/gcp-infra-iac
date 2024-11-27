@@ -122,7 +122,7 @@ Step 7: Once the GCP Infra pipeline is successfully executed in GCP Cloudbuild t
     3. The latest docker image consist of nodejs application code that will deployed on GCP Cloud run and On Cloud Sql(MySql), database and table crearion is execuueted and store in the same image
 
 Step 8: After Successfully deployment of image on the GCP Cloud Run, it will generate a default url in the gcp console: 
-            Base Url: https://console.cloud.google.com/run?referrer=search&authuser=2&project=proj-dev-demo000-aaaa&inv=1&invt=Abia9Q
+        Base Url: https://console.cloud.google.com/run?referrer=search&authuser=2&project=proj-dev-demo000-aaaa&inv=1&invt=Abia9Q
 
 
 Step 9: For the destroying the entire infrastrure use below command
